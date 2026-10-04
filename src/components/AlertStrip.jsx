@@ -13,11 +13,13 @@ const DOT = {
 function Signal({ label, value, dot, sub, isLast }) {
   return (
     <div
-      className="flex items-center gap-3 flex-1"
+      className="flex items-center gap-3"
       style={{
         padding: '0 28px',
         borderRight: isLast ? 'none' : '1px solid rgba(26,43,69,0.6)',
         height: '100%',
+        minWidth: 200,
+        flexShrink: 0,
       }}
     >
       {/* Status dot */}
@@ -33,7 +35,7 @@ function Signal({ label, value, dot, sub, isLast }) {
 
       {/* Text block */}
       <div className="flex flex-col" style={{ lineHeight: 1.25 }}>
-        <span style={{ fontSize: 10, fontWeight: 600, color: '#7A92B0', letterSpacing: '0.15em', textTransform: 'uppercase' }}>
+        <span style={{ fontSize: 10, fontWeight: 600, color: '#7A92B0', letterSpacing: '0.15em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>
           {label}
         </span>
         <span style={{ fontSize: 13, fontWeight: 600, color: '#F0F4F8' }}>
