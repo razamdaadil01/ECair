@@ -1,6 +1,9 @@
 // ─── Commercial Tab ───────────────────────────────────────────────────────────
 // Strategic Indicators > Commercial — 5 KPIs: Weekly (3) · Monthly (1) · Quarterly (1)
 
+import { useState } from 'react'
+import KPIUpdateModal from '../forms/KPIUpdateModal.jsx'
+
 const C = {
   gold: 'var(--brand-gold)', bg: 'var(--bg-primary)', bgCard: 'var(--bg-card)', bgSecondary: 'var(--bg-secondary)',
   border: 'var(--border-subtle)', textPrimary: 'var(--text-primary)', textSecondary: 'var(--text-secondary)',
@@ -42,34 +45,42 @@ function CardWrap({ children, style }) {
     </div>
   )
 }
-function CardHeader({ title, badge }) {
+function CardHeader({ title, badge, onEdit }) {
   return (
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
       <span style={{ fontSize: 12, fontWeight: 600, color: C.gold, lineHeight: 1.4 }}>{title}</span>
-      {badge && <CadenceBadge label={badge} />}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+        {badge && <CadenceBadge label={badge} />}
+        {onEdit && (
+          <button onClick={onEdit} title="Update value" style={{
+            background: 'none', border: `1px solid ${C.border}`, borderRadius: 4,
+            cursor: 'pointer', padding: '2px 6px', fontSize: 11, color: C.textSecondary, lineHeight: 1,
+          }}>✏️</button>
+        )}
+      </div>
     </div>
   )
 }
 
 // ── Section 1: Weekly ─────────────────────────────────────────────────────────
 
-const LOAD_FACTOR_ROUTES = [
+const LOAD_FACTOR_ROUTES_INIT = [
   { route: 'BZV — LBV', lf: '58%', status: 'red',   label: 'Critical (< 60%)' },
   { route: 'BZV — DLA', lf: '72%', status: 'green',  label: 'On Track' },
   { route: 'BZV — LFW', lf: '64%', status: 'amber',  label: 'Warning' },
 ]
 
 function LoadFactorCard() {
+  const [routes] = useState(LOAD_FACTOR_ROUTES_INIT)
   return (
     <CardWrap>
       <CardHeader title="Load Factor by Route" badge="Weekly" />
-      {/* Mini route table */}
       <div style={{ fontSize: 11 }}>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 60px 1fr', gap: 8, padding: '5px 0', borderBottom: `1px solid ${C.gold}`, color: C.textSecondary, fontSize: 10, fontWeight: 600, letterSpacing: '0.05em' }}>
           <span>Route</span><span style={{ textAlign: 'center' }}>LF</span><span>Status</span>
         </div>
-        {LOAD_FACTOR_ROUTES.map((r, i) => (
-          <div key={r.route} style={{ display: 'grid', gridTemplateColumns: '1fr 60px 1fr', gap: 8, padding: '8px 0', borderBottom: i < LOAD_FACTOR_ROUTES.length - 1 ? `1px solid ${C.border}` : 'none', alignItems: 'center' }}>
+        {routes.map((r, i) => (
+          <div key={r.route} style={{ display: 'grid', gridTemplateColumns: '1fr 60px 1fr', gap: 8, padding: '8px 0', borderBottom: i < routes.length - 1 ? `1px solid ${C.border}` : 'none', alignItems: 'center' }}>
             <span style={{ color: C.textPrimary, fontWeight: 500 }}>{r.route}</span>
             <span style={{ color: SC[r.status], fontWeight: 700, textAlign: 'center' }}>{r.lf}</span>
             <div style={{ display: 'flex', alignItems: 'center', gap: 5 }}>
@@ -86,38 +97,45 @@ function LoadFactorCard() {
 }
 
 function RevenueVarianceCard() {
+  const [value, setValue] = useState('−8%')
+  const [modal, setModal] = useState(false)
+  const row = { indicator: 'Revenue vs Budget Variance', value, source: 'Revenue Control / Ticketing PSS' }
   return (
     <CardWrap>
-      <CardHeader title="Revenue vs Budget Variance" badge="Weekly" />
-      <div style={{ fontSize: 32, fontWeight: 700, color: C.red, lineHeight: 1 }}>−8%</div>
-      <div style={{ fontSize: 12, color: C.textSecondary }}>Actual revenue 8% below budget this week</div>
+      <CardHeader title="Revenue vs Budget Variance" badge="Weekly" onEdit={() => setModal(true)} />
+      <div style={{ fontSize: 32, fontWeight: 700, color: C.red, lineHeight: 1 }}>{value}</div>
+      <div style={{ fontSize: 12, color: C.textSecondary }}>Actual revenue below budget this week</div>
       <StatusLine color="amber" text="Warning: Variance > 10% threshold approaching" />
       <div style={{ fontSize: 11, color: C.textSecondary }}>Benchmark: Warning if variance &gt; 10%</div>
       <SourceLine text="Revenue Control / Ticketing PSS" />
+      {modal && <KPIUpdateModal row={row} rowIndex={0} onClose={() => setModal(false)} onSubmit={(_, v) => setValue(v)} period="Week 41 / 2026" />}
     </CardWrap>
   )
 }
 
 function ComplaintsCard() {
-  const total = 5
+  const [value, setValue] = useState('5')
+  const [modal, setModal] = useState(false)
+  const total = parseInt(value, 10) || 0
   const target = 3
+  const row = { indicator: 'Passenger Complaints', value, source: 'Customer Experience' }
   return (
     <CardWrap>
-      <CardHeader title="Passenger Complaints" badge="Weekly" />
+      <CardHeader title="Passenger Complaints" badge="Weekly" onEdit={() => setModal(true)} />
       <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
-        <span style={{ fontSize: 32, fontWeight: 700, color: C.red, lineHeight: 1 }}>5</span>
+        <span style={{ fontSize: 32, fontWeight: 700, color: C.red, lineHeight: 1 }}>{value}</span>
         <span style={{ fontSize: 12, color: C.textSecondary }}>this week</span>
       </div>
-      {/* Complaint dots */}
       <div style={{ display: 'flex', gap: 6, alignItems: 'center' }}>
-        {Array.from({ length: total }).map((_, i) => (
+        {Array.from({ length: Math.min(total, 10) }).map((_, i) => (
           <span key={i} style={{ display: 'inline-block', width: 12, height: 12, borderRadius: '50%', backgroundColor: i < target ? C.red : C.amber }} />
         ))}
-        <span style={{ fontSize: 10, color: C.textSecondary, marginLeft: 4 }}>target: 3</span>
+        <span style={{ fontSize: 10, color: C.textSecondary, marginLeft: 4 }}>target: {target}</span>
       </div>
-      <StatusLine color="red" text="Above target of 3 / week" />
+      <StatusLine color="red" text={`${total > target ? 'Above' : 'Below'} target of ${target} / week`} />
       <div style={{ fontSize: 11, color: C.textSecondary }}>Benchmark: Target &lt; 3 / week</div>
       <SourceLine text="Customer Experience" />
+      {modal && <KPIUpdateModal row={row} rowIndex={0} onClose={() => setModal(false)} onSubmit={(_, v) => setValue(v)} period="Week 41 / 2026" />}
     </CardWrap>
   )
 }
@@ -125,19 +143,23 @@ function ComplaintsCard() {
 // ── Section 2: Monthly ────────────────────────────────────────────────────────
 
 function YieldCard() {
+  const [value, setValue] = useState('$187')
+  const [modal, setModal] = useState(false)
+  const row = { indicator: 'Yield — Net Revenue per Passenger', value, source: 'Revenue Control / Ticketing PSS' }
   return (
     <CardWrap>
-      <CardHeader title="Yield — Net Revenue per Passenger" badge="Monthly" />
+      <CardHeader title="Yield — Net Revenue per Passenger" badge="Monthly" onEdit={() => setModal(true)} />
       <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
-        <span style={{ fontSize: 32, fontWeight: 700, color: C.red, lineHeight: 1 }}>$187</span>
+        <span style={{ fontSize: 32, fontWeight: 700, color: C.red, lineHeight: 1 }}>{value}</span>
         <span style={{ fontSize: 14, color: C.textSecondary }}> / pax</span>
       </div>
-      <div style={{ fontSize: 12, color: C.textSecondary }}>vs Budget: $210 / pax — drop of 10.9%</div>
+      <div style={{ fontSize: 12, color: C.textSecondary }}>vs Budget: $210 / pax</div>
       <StatusLine color="red" text="Alert: Drop > 5% vs budget excluding seasonal effect" />
       <div style={{ fontSize: 11, color: C.textSecondary, fontStyle: 'italic', paddingTop: 4 }}>
         Distinct from RASK — measured per passenger carried, not per seat offered.
       </div>
       <SourceLine text="Revenue Control / Ticketing PSS" />
+      {modal && <KPIUpdateModal row={row} rowIndex={0} onClose={() => setModal(false)} onSubmit={(_, v) => setValue(v)} period="October 2026" />}
     </CardWrap>
   )
 }
@@ -145,17 +167,21 @@ function YieldCard() {
 // ── Section 3: Quarterly ──────────────────────────────────────────────────────
 
 function SatisfactionCard() {
+  const [value, setValue] = useState('NPS: 34 · CSAT: 71%')
+  const [modal, setModal] = useState(false)
+  const row = { indicator: 'Customer Satisfaction — NPS / CSAT', value, source: 'Post-flight passenger survey' }
   return (
     <CardWrap>
-      <CardHeader title="Customer Satisfaction — NPS / CSAT" badge="Quarterly" />
-      <div style={{ fontSize: 28, fontWeight: 700, color: C.red, lineHeight: 1.2 }}>NPS: 34 · CSAT: 71%</div>
+      <CardHeader title="Customer Satisfaction — NPS / CSAT" badge="Quarterly" onEdit={() => setModal(true)} />
+      <div style={{ fontSize: 28, fontWeight: 700, color: C.red, lineHeight: 1.2 }}>{value}</div>
       <div style={{ fontSize: 12, color: C.textSecondary }}>vs Previous period: NPS −6 points vs Q2 2026</div>
       <StatusLine color="red" text="Alert: Drop > 5 points vs previous period" />
       <div style={{ fontSize: 11, color: C.textSecondary, fontStyle: 'italic', paddingTop: 4 }}>
-        Post-flight passenger survey — to be set up if absent. Distinct from on-board product satisfaction tracked by Product Development.
+        Post-flight passenger survey. Distinct from on-board product satisfaction tracked by Product Development.
       </div>
       <div style={{ fontSize: 11, color: C.textSecondary }}>Benchmark: Alert if drop &gt; 5 points vs previous period</div>
       <SourceLine text="Post-flight passenger survey" />
+      {modal && <KPIUpdateModal row={row} rowIndex={0} onClose={() => setModal(false)} onSubmit={(_, v) => setValue(v)} period="Q3 2026" />}
     </CardWrap>
   )
 }
@@ -165,7 +191,6 @@ function SatisfactionCard() {
 export default function CommercialTab() {
   return (
     <div style={{ padding: '24px 28px', display: 'flex', flexDirection: 'column', gap: 32 }}>
-      {/* Header */}
       <div>
         <div style={{ fontSize: 11, color: C.textSecondary, marginBottom: 8 }}>
           Strategic Indicators <span style={{ margin: '0 6px', color: C.border }}>/</span>
@@ -177,7 +202,6 @@ export default function CommercialTab() {
         </div>
       </div>
 
-      {/* Weekly */}
       <div>
         <SectionHeader label="Weekly" />
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
@@ -187,13 +211,11 @@ export default function CommercialTab() {
         </div>
       </div>
 
-      {/* Monthly */}
       <div>
         <SectionHeader label="Monthly" />
         <YieldCard />
       </div>
 
-      {/* Quarterly */}
       <div>
         <SectionHeader label="Quarterly" />
         <SatisfactionCard />

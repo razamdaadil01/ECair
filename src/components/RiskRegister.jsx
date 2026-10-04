@@ -1,20 +1,15 @@
 // ─── Risk Register ────────────────────────────────────────────────────────────
 
+import { useState } from 'react'
+import { useAppData } from '../context/AppDataContext.jsx'
+import AddRiskModal from './forms/AddRiskModal.jsx'
+
 const C = {
   gold: 'var(--brand-gold)', bg: 'var(--bg-primary)', bgCard: 'var(--bg-card)', bgSecondary: 'var(--bg-secondary)',
   border: 'var(--border-subtle)', textPrimary: 'var(--text-primary)', textSecondary: 'var(--text-secondary)',
   green: 'var(--status-green)', amber: 'var(--status-amber)', red: 'var(--status-red)', blue: 'var(--status-blue)',
   orange: '#F97316',
 }
-
-const RISKS = [
-  { id: 'R1', name: 'Fleet Grounding Cascade',  category: 'Operations', prob: 4, impact: 5, owner: 'COO',  status: 'Open',      inDecision: true  },
-  { id: 'R2', name: 'Fuel Price Spike (+30%)',   category: 'Finance',   prob: 3, impact: 4, owner: 'CFO',  status: 'Monitored', inDecision: true  },
-  { id: 'R3', name: 'Key Partner Insolvency',    category: 'Commercial',prob: 2, impact: 4, owner: 'CCO',  status: 'Open',      inDecision: false },
-  { id: 'R4', name: 'Regulatory Sanction',       category: 'Safety',    prob: 3, impact: 3, owner: 'CSO',  status: 'Mitigated', inDecision: true  },
-  { id: 'R5', name: 'Staff Strike Action',       category: 'HR',        prob: 2, impact: 3, owner: 'CHRO', status: 'Monitored', inDecision: false },
-  { id: 'R6', name: 'IT / Data Breach',          category: 'IT',        prob: 2, impact: 2, owner: 'CIO',  status: 'Mitigated', inDecision: false },
-]
 
 const SCORE_HEX = { red: '#EF4444', orange: '#F97316', amber: '#F59E0B', green: '#22C55E' }
 
@@ -36,10 +31,9 @@ function cellBg(prob, impact) {
   return `${scoreHex(prob * impact)}22`
 }
 
-function Heatmap() {
-  // Build lookup: (prob,impact) → risk ids
+function Heatmap({ risks }) {
   const lookup = {}
-  RISKS.forEach(r => {
+  risks.forEach(r => {
     const key = `${r.prob}-${r.impact}`
     lookup[key] = [...(lookup[key] || []), r.id]
   })
@@ -54,7 +48,6 @@ function Heatmap() {
       </div>
 
       <div style={{ display: 'flex', gap: 16, alignItems: 'flex-end' }}>
-        {/* Y-axis label */}
         <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', height: 5 * CELL_SIZE, width: 18 }}>
           <span style={{
             fontSize: 10, fontWeight: 700, color: C.textSecondary, letterSpacing: '0.14em',
@@ -63,12 +56,9 @@ function Heatmap() {
         </div>
 
         <div>
-          {/* Y-axis numbers + grid rows */}
           {[5, 4, 3, 2, 1].map(prob => (
             <div key={prob} style={{ display: 'flex', alignItems: 'center' }}>
-              {/* Y label */}
               <div style={{ width: 20, textAlign: 'right', marginRight: 8, fontSize: 11, color: C.textSecondary, fontWeight: 600 }}>{prob}</div>
-              {/* 5 cells */}
               {[1, 2, 3, 4, 5].map(impact => {
                 const key = `${prob}-${impact}`
                 const riskIds = lookup[key] || []
@@ -99,19 +89,16 @@ function Heatmap() {
             </div>
           ))}
 
-          {/* X-axis numbers */}
           <div style={{ display: 'flex', marginTop: 6, paddingLeft: 28 }}>
             {[1, 2, 3, 4, 5].map(i => (
               <div key={i} style={{ width: CELL_SIZE, textAlign: 'center', fontSize: 11, color: C.textSecondary, fontWeight: 600 }}>{i}</div>
             ))}
           </div>
-          {/* X-axis label */}
           <div style={{ textAlign: 'center', marginTop: 4, paddingLeft: 28 }}>
             <span style={{ fontSize: 10, fontWeight: 700, color: C.textSecondary, letterSpacing: '0.14em', textTransform: 'uppercase' }}>Impact →</span>
           </div>
         </div>
 
-        {/* Legend */}
         <div style={{ display: 'flex', flexDirection: 'column', gap: 8, marginLeft: 20, alignSelf: 'center' }}>
           {[
             { label: 'Critical (15–25)', color: C.red },
@@ -130,7 +117,7 @@ function Heatmap() {
   )
 }
 
-function RiskTable() {
+function RiskTable({ risks }) {
   const STATUS_COLOR = { Open: C.red, Monitored: C.amber, Mitigated: C.green }
 
   return (
@@ -147,7 +134,7 @@ function RiskTable() {
           </tr>
         </thead>
         <tbody>
-          {RISKS.map((r, i) => {
+          {risks.map((r, i) => {
             const score = r.prob * r.impact
             const sc = scoreColor(score)
             const rowBg = i % 2 === 0 ? C.bgSecondary : C.bgCard
@@ -181,6 +168,9 @@ function RiskTable() {
 }
 
 export default function RiskRegister() {
+  const { risks } = useAppData()
+  const [addModal, setAddModal] = useState(false)
+
   return (
     <div style={{ padding: '24px 28px', display: 'flex', flexDirection: 'column', gap: 32 }}>
       {/* Page Header */}
@@ -189,14 +179,23 @@ export default function RiskRegister() {
           ECAir CEO Cockpit <span style={{ margin: '0 6px', color: C.border }}>/</span>
           <span style={{ color: C.textPrimary }}>Risk Register</span>
         </div>
-        <div style={{ paddingLeft: 14, borderLeft: `3px solid ${C.gold}` }}>
-          <h1 style={{ margin: 0, fontSize: 22, fontWeight: 700, color: C.textPrimary, lineHeight: 1.2 }}>Risk Register</h1>
-          <p style={{ margin: '4px 0 0', fontSize: 13, color: C.textSecondary }}>6 risks tracked · Probability × Impact heatmap</p>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+          <div style={{ paddingLeft: 14, borderLeft: `3px solid ${C.gold}` }}>
+            <h1 style={{ margin: 0, fontSize: 22, fontWeight: 700, color: C.textPrimary, lineHeight: 1.2 }}>Risk Register</h1>
+            <p style={{ margin: '4px 0 0', fontSize: 13, color: C.textSecondary }}>{risks.length} risks tracked · Probability × Impact heatmap</p>
+          </div>
+          <button
+            onClick={() => setAddModal(true)}
+            style={{
+              padding: '8px 18px', fontSize: 13, fontWeight: 600, borderRadius: 6,
+              border: 'none', backgroundColor: C.gold, color: '#111', cursor: 'pointer',
+            }}
+          >+ Add Risk</button>
         </div>
       </div>
 
-      <Heatmap />
-      <RiskTable />
+      <Heatmap risks={risks} />
+      <RiskTable risks={risks} />
 
       {/* Info box */}
       <div style={{
@@ -216,6 +215,8 @@ export default function RiskRegister() {
           </p>
         </div>
       </div>
+
+      {addModal && <AddRiskModal onClose={() => setAddModal(false)} />}
     </div>
   )
 }

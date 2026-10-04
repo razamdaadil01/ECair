@@ -1,6 +1,9 @@
 // ─── Operations Tab ───────────────────────────────────────────────────────────
 // Strategic Indicators > Operations — 10 KPIs: Daily (3) · Weekly (7 as table)
 
+import { useState } from 'react'
+import KPIUpdateModal from '../forms/KPIUpdateModal.jsx'
+
 const C = {
   gold: 'var(--brand-gold)', bg: 'var(--bg-primary)', bgCard: 'var(--bg-card)', bgSecondary: 'var(--bg-secondary)',
   border: 'var(--border-subtle)', textPrimary: 'var(--text-primary)', textSecondary: 'var(--text-secondary)',
@@ -42,11 +45,19 @@ function CardWrap({ children, style }) {
     </div>
   )
 }
-function CardHeader({ title, badge }) {
+function CardHeader({ title, badge, onEdit }) {
   return (
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
       <span style={{ fontSize: 12, fontWeight: 600, color: C.gold, lineHeight: 1.4 }}>{title}</span>
-      {badge && <CadenceBadge label={badge} />}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+        {badge && <CadenceBadge label={badge} />}
+        {onEdit && (
+          <button onClick={onEdit} title="Update value" style={{
+            background: 'none', border: `1px solid ${C.border}`, borderRadius: 4,
+            cursor: 'pointer', padding: '2px 6px', fontSize: 11, color: C.textSecondary, lineHeight: 1,
+          }}>✏️</button>
+        )}
+      </div>
     </div>
   )
 }
@@ -95,20 +106,25 @@ function FlightsOperatedCard() {
 // ── Daily card 2: OTP Today ───────────────────────────────────────────────────
 
 function OTPTodayCard() {
+  const [value, setValue] = useState('86%')
+  const [modal, setModal] = useState(false)
+  const pct = parseFloat(value) || 0
+  const row = { indicator: 'On-Time Performance — Today', value, source: 'Flight Operations Control' }
   return (
     <CardWrap>
-      <CardHeader title="On-Time Performance — Today" badge="Daily" />
+      <CardHeader title="On-Time Performance — Today" badge="Daily" onEdit={() => setModal(true)} />
       <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
-        <span style={{ fontSize: 32, fontWeight: 700, color: C.green, lineHeight: 1 }}>86%</span>
+        <span style={{ fontSize: 32, fontWeight: 700, color: C.green, lineHeight: 1 }}>{value}</span>
       </div>
       <div style={{ fontSize: 12, color: C.textSecondary }}>5 of 6 flights departed within 15 min of schedule</div>
-      <ProgressBar pct={86} color="green" />
+      <ProgressBar pct={pct} color="green" />
       <StatusLine color="green" text="On Track (target: > 80%)" />
       <div style={{ fontSize: 11, color: C.amber, paddingTop: 4 }}>
         BZV-DLA 16:00 — delayed 22 min (crew late)
       </div>
       <div style={{ fontSize: 11, color: C.textSecondary }}>Benchmark: Warning if &lt; 80%</div>
       <SourceLine text="Flight Operations Control" />
+      {modal && <KPIUpdateModal row={row} rowIndex={0} onClose={() => setModal(false)} onSubmit={(_, v) => setValue(v)} period="Oct 4, 2026" />}
     </CardWrap>
   )
 }
