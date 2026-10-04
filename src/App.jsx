@@ -11,6 +11,15 @@ import FinanceTab from './components/strategic/FinanceTab.jsx'
 import OperationsTab from './components/strategic/OperationsTab.jsx'
 import FleetTab from './components/strategic/FleetTab.jsx'
 import SafetyTab from './components/strategic/SafetyTab.jsx'
+import HRTab from './components/support/HRTab.jsx'
+import CommunicationTab from './components/support/CommunicationTab.jsx'
+import LegalTab from './components/support/LegalTab.jsx'
+import AuditTab from './components/support/AuditTab.jsx'
+import TravelTab from './components/support/TravelTab.jsx'
+import ITTab from './components/support/ITTab.jsx'
+import ProductServiceTab from './components/support/ProductServiceTab.jsx'
+import ProcurementTab from './components/support/ProcurementTab.jsx'
+import GeneralServicesTab from './components/support/GeneralServicesTab.jsx'
 import Placeholder from './components/Placeholder.jsx'
 
 // Navigation structure — tabs rendered in Sidebar
@@ -112,8 +121,17 @@ export default function App() {
            activeTab === 'commercial' ? <CommercialTab />  :
            activeTab === 'finance'    ? <FinanceTab />     :
            activeTab === 'operations' ? <OperationsTab />  :
-           activeTab === 'fleet'      ? <FleetTab />       :
-           activeTab === 'safety'     ? <SafetyTab />      :
+           activeTab === 'fleet'      ? <FleetTab />            :
+           activeTab === 'safety'     ? <SafetyTab />           :
+           activeTab === 'hr'         ? <HRTab />               :
+           activeTab === 'communication' ? <CommunicationTab /> :
+           activeTab === 'legal'      ? <LegalTab />            :
+           activeTab === 'audit'      ? <AuditTab />            :
+           activeTab === 'travel'     ? <TravelTab />           :
+           activeTab === 'it'         ? <ITTab />               :
+           activeTab === 'product'    ? <ProductServiceTab />   :
+           activeTab === 'procurement' ? <ProcurementTab />     :
+           activeTab === 'general'    ? <GeneralServicesTab />  :
            <Placeholder tab={activeTab} />}
         </main>
       </div>
