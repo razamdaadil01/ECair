@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { ExecutionProCard, KPITable, PageHeader, SectionHeader } from './_shared.jsx'
 import DepartmentDataEntryModal from '../forms/DepartmentDataEntryModal.jsx'
+import { useRole } from '../../context/RoleContext.jsx'
 
 const EP = [
   { name: 'Ebène VIP Lounge Commissioning',            progress: 70, status: 'green' },
@@ -33,6 +34,8 @@ const BTN = {
 }
 
 export default function ProductServiceTab() {
+  const { canEdit } = useRole()
+  const ce = canEdit('supportProduct')
   const [weekly, setWeekly] = useState(WEEKLY_INIT)
   const [monthly, setMonthly] = useState(MONTHLY_INIT)
   const [quarterly, setQuarterly] = useState(QUARTERLY_INIT)
@@ -64,20 +67,20 @@ export default function ProductServiceTab() {
       <PageHeader dept="Product & Service" title="Support Functions — Product & Service" subtitle="9 indicators · Weekly to Quarterly" />
       <ExecutionProCard projects={EP} />
       <div>
-        <SectionHeader label="Weekly" action={<button style={BTN} onClick={() => setWeeklyModal(true)}>+ Enter Weekly Data</button>} />
-        <KPITable rows={weekly} onUpdateRow={updateWeeklyRow} period="Week 41 / 2026" />
+        <SectionHeader label="Weekly" action={ce ? <button style={BTN} onClick={() => setWeeklyModal(true)}>+ Enter Weekly Data</button> : null} />
+        <KPITable rows={weekly} onUpdateRow={ce ? updateWeeklyRow : undefined} period="Week 41 / 2026" />
       </div>
       <div>
-        <SectionHeader label="Monthly" action={<button style={BTN} onClick={() => setMonthlyModal(true)}>+ Enter Monthly Data</button>} />
-        <KPITable rows={monthly} onUpdateRow={updateMonthlyRow} period="October 2026" />
+        <SectionHeader label="Monthly" action={ce ? <button style={BTN} onClick={() => setMonthlyModal(true)}>+ Enter Monthly Data</button> : null} />
+        <KPITable rows={monthly} onUpdateRow={ce ? updateMonthlyRow : undefined} period="October 2026" />
       </div>
       <div>
-        <SectionHeader label="Quarterly" action={<button style={BTN} onClick={() => setQuarterlyModal(true)}>+ Enter Quarterly Data</button>} />
-        <KPITable rows={quarterly} onUpdateRow={updateQuarterlyRow} period="Q4 2026" />
+        <SectionHeader label="Quarterly" action={ce ? <button style={BTN} onClick={() => setQuarterlyModal(true)}>+ Enter Quarterly Data</button> : null} />
+        <KPITable rows={quarterly} onUpdateRow={ce ? updateQuarterlyRow : undefined} period="Q4 2026" />
       </div>
-      {weeklyModal && <DepartmentDataEntryModal rows={weekly} onSubmit={submitWeekly} onClose={() => setWeeklyModal(false)} cadence="Weekly" dept="Product & Service" />}
-      {monthlyModal && <DepartmentDataEntryModal rows={monthly} onSubmit={submitMonthly} onClose={() => setMonthlyModal(false)} cadence="Monthly" dept="Product & Service" />}
-      {quarterlyModal && <DepartmentDataEntryModal rows={quarterly} onSubmit={submitQuarterly} onClose={() => setQuarterlyModal(false)} cadence="Quarterly" dept="Product & Service" />}
+      {ce && weeklyModal && <DepartmentDataEntryModal rows={weekly} onSubmit={submitWeekly} onClose={() => setWeeklyModal(false)} cadence="Weekly" dept="Product & Service" />}
+      {ce && monthlyModal && <DepartmentDataEntryModal rows={monthly} onSubmit={submitMonthly} onClose={() => setMonthlyModal(false)} cadence="Monthly" dept="Product & Service" />}
+      {ce && quarterlyModal && <DepartmentDataEntryModal rows={quarterly} onSubmit={submitQuarterly} onClose={() => setQuarterlyModal(false)} cadence="Quarterly" dept="Product & Service" />}
     </div>
   )
 }

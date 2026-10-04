@@ -4,6 +4,7 @@
 
 import { useState } from 'react'
 import KPIUpdateModal from '../forms/KPIUpdateModal.jsx'
+import { useRole } from '../../context/RoleContext.jsx'
 
 const C = {
   gold: 'var(--brand-gold)', bg: 'var(--bg-primary)', bgCard: 'var(--bg-card)', bgSecondary: 'var(--bg-secondary)',
@@ -66,14 +67,14 @@ function CardHeader({ title, badge, onEdit }) {
 
 // ── Daily: Today's incidents ──────────────────────────────────────────────────
 
-function IncidentsTodayCard() {
+function IncidentsTodayCard({ canEdit }) {
   const [value, setValue] = useState('0')
   const [modal, setModal] = useState(false)
   const count = parseInt(value, 10) || 0
   const row = { indicator: 'Safety Incidents — Today', value, source: 'SMS / SGS register' }
   return (
     <CardWrap>
-      <CardHeader title="Safety Incidents — Today" badge="Daily" onEdit={() => setModal(true)} />
+      <CardHeader title="Safety Incidents — Today" badge="Daily" onEdit={canEdit ? () => setModal(true) : undefined} />
       <div style={{ display: 'flex', alignItems: 'flex-end', gap: 16 }}>
         <span style={{ fontSize: 64, fontWeight: 700, color: count === 0 ? C.green : C.red, lineHeight: 1 }}>{value}</span>
         <span style={{ fontSize: 14, color: C.textSecondary, paddingBottom: 8 }}>{count === 0 ? 'No events reported today' : `${count} incident${count > 1 ? 's' : ''} reported today`}</span>
@@ -89,7 +90,7 @@ function IncidentsTodayCard() {
         Any incident triggers immediate CEO notification regardless of category.
       </div>
       <SourceLine text="SMS / SGS register" />
-      {modal && <KPIUpdateModal row={row} rowIndex={0} onClose={() => setModal(false)} onSubmit={(_, v) => setValue(v)} period="Daily" />}
+      {canEdit && modal && <KPIUpdateModal row={row} rowIndex={0} onClose={() => setModal(false)} onSubmit={(_, v) => setValue(v)} period="Daily" />}
     </CardWrap>
   )
 }
@@ -258,6 +259,9 @@ function AuditCard() {
 // ── Root ──────────────────────────────────────────────────────────────────────
 
 export default function SafetyTab() {
+  const { canEdit } = useRole()
+  const ce = canEdit('strategicSafety')
+
   return (
     <div style={{ padding: '24px 28px', display: 'flex', flexDirection: 'column', gap: 36 }}>
       <div>
@@ -273,7 +277,7 @@ export default function SafetyTab() {
 
       <div>
         <SectionHeader label="Daily" />
-        <IncidentsTodayCard />
+        <IncidentsTodayCard canEdit={ce} />
       </div>
 
       <div>

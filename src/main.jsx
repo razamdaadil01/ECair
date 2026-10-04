@@ -4,6 +4,7 @@ import './index.css'
 import { ThemeProvider } from './context/ThemeContext.jsx'
 import { ToastProvider } from './context/ToastContext.jsx'
 import { AppDataProvider } from './context/AppDataContext.jsx'
+import { RoleProvider } from './context/RoleContext.jsx'
 import Toast from './components/ui/Toast.jsx'
 import App from './App.jsx'
 
@@ -12,8 +13,10 @@ createRoot(document.getElementById('root')).render(
     <ThemeProvider>
       <ToastProvider>
         <AppDataProvider>
-          <App />
-          <Toast />
+          <RoleProvider>
+            <App />
+            <Toast />
+          </RoleProvider>
         </AppDataProvider>
       </ToastProvider>
     </ThemeProvider>

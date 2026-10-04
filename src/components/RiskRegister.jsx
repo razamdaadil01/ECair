@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useAppData } from '../context/AppDataContext.jsx'
 import AddRiskModal from './forms/AddRiskModal.jsx'
+import { useRole } from '../context/RoleContext.jsx'
 
 const C = {
   gold: 'var(--brand-gold)', bg: 'var(--bg-primary)', bgCard: 'var(--bg-card)', bgSecondary: 'var(--bg-secondary)',
@@ -169,6 +170,7 @@ function RiskTable({ risks }) {
 
 export default function RiskRegister() {
   const { risks } = useAppData()
+  const { canEdit } = useRole()
   const [addModal, setAddModal] = useState(false)
 
   return (
@@ -184,13 +186,13 @@ export default function RiskRegister() {
             <h1 style={{ margin: 0, fontSize: 22, fontWeight: 700, color: C.textPrimary, lineHeight: 1.2 }}>Risk Register</h1>
             <p style={{ margin: '4px 0 0', fontSize: 13, color: C.textSecondary }}>{risks.length} risks tracked · Probability × Impact heatmap</p>
           </div>
-          <button
+          {canEdit('riskRegister') && <button
             onClick={() => setAddModal(true)}
             style={{
               padding: '8px 18px', fontSize: 13, fontWeight: 600, borderRadius: 6,
               border: 'none', backgroundColor: C.gold, color: '#111', cursor: 'pointer',
             }}
-          >+ Add Risk</button>
+          >+ Add Risk</button>}
         </div>
       </div>
 
