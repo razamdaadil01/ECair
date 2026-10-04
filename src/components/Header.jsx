@@ -26,7 +26,9 @@ function LiveClock() {
 function RoleSwitcher() {
   const { role, activeDepartment, setRole, setActiveDepartment } = useRole()
   const [open, setOpen] = useState(false)
+  const [dropdownPos, setDropdownPos] = useState({ top: 0, right: 0 })
   const ref = useRef(null)
+  const buttonRef = useRef(null)
 
   useEffect(() => {
     if (!open) return
@@ -42,10 +44,19 @@ function RoleSwitcher() {
     ? `Dept Head — ${activeDepartment}`
     : currentRole.label
 
+  function handleButtonClick() {
+    if (!open && buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect()
+      setDropdownPos({ top: rect.bottom + 4, right: window.innerWidth - rect.right })
+    }
+    setOpen(o => !o)
+  }
+
   return (
     <div ref={ref} style={{ position: 'relative' }}>
       <button
-        onClick={() => setOpen(o => !o)}
+        ref={buttonRef}
+        onClick={handleButtonClick}
         style={{
           display: 'flex', alignItems: 'center', gap: 6,
           background: 'none', border: '1px solid var(--border-subtle)',
@@ -63,11 +74,11 @@ function RoleSwitcher() {
 
       {open && (
         <div style={{
-          position: 'absolute', top: 'calc(100% + 6px)', right: 0,
+          position: 'fixed', top: dropdownPos.top, right: dropdownPos.right,
           backgroundColor: 'var(--bg-card)',
           border: '1px solid var(--border-subtle)',
           borderRadius: 8, padding: '4px 0',
-          minWidth: 210, zIndex: 100,
+          minWidth: 210, zIndex: 9999,
           boxShadow: '0 8px 24px rgba(0,0,0,0.3)',
         }}>
           {Object.values(ROLES).map(r => (
