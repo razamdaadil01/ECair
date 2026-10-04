@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { ExecutionProCard, KPITable, PageHeader, SectionHeader } from './_shared.jsx'
 import DepartmentDataEntryModal from '../forms/DepartmentDataEntryModal.jsx'
+import { useRole } from '../../context/RoleContext.jsx'
 
 const WEEKLY_INIT = [
   { indicator: 'Average Lead Time — Purchase to Award', value: '18 days',           benchmark: 'Trend monitoring', status: 'green', source: 'Purchase requests register' },
@@ -21,6 +22,8 @@ const BTN = {
 }
 
 export default function ProcurementTab() {
+  const { canEdit } = useRole()
+  const ce = canEdit('supportProcurement')
   const [weekly, setWeekly] = useState(WEEKLY_INIT)
   const [monthly, setMonthly] = useState(MONTHLY_INIT)
   const [weeklyModal, setWeeklyModal] = useState(false)
@@ -44,15 +47,15 @@ export default function ProcurementTab() {
       <PageHeader dept="Procurement" title="Support Functions — Procurement" subtitle="6 indicators · Weekly to Monthly" />
       <ExecutionProCard noProjects />
       <div>
-        <SectionHeader label="Weekly" action={<button style={BTN} onClick={() => setWeeklyModal(true)}>+ Enter Weekly Data</button>} />
-        <KPITable rows={weekly} onUpdateRow={updateWeeklyRow} period="Week 41 / 2026" />
+        <SectionHeader label="Weekly" action={ce ? <button style={BTN} onClick={() => setWeeklyModal(true)}>+ Enter Weekly Data</button> : null} />
+        <KPITable rows={weekly} onUpdateRow={ce ? updateWeeklyRow : undefined} period="Week 41 / 2026" />
       </div>
       <div>
-        <SectionHeader label="Monthly" action={<button style={BTN} onClick={() => setMonthlyModal(true)}>+ Enter Monthly Data</button>} />
-        <KPITable rows={monthly} onUpdateRow={updateMonthlyRow} period="October 2026" />
+        <SectionHeader label="Monthly" action={ce ? <button style={BTN} onClick={() => setMonthlyModal(true)}>+ Enter Monthly Data</button> : null} />
+        <KPITable rows={monthly} onUpdateRow={ce ? updateMonthlyRow : undefined} period="October 2026" />
       </div>
-      {weeklyModal && <DepartmentDataEntryModal rows={weekly} onSubmit={submitWeekly} onClose={() => setWeeklyModal(false)} cadence="Weekly" dept="Procurement" />}
-      {monthlyModal && <DepartmentDataEntryModal rows={monthly} onSubmit={submitMonthly} onClose={() => setMonthlyModal(false)} cadence="Monthly" dept="Procurement" />}
+      {ce && weeklyModal && <DepartmentDataEntryModal rows={weekly} onSubmit={submitWeekly} onClose={() => setWeeklyModal(false)} cadence="Weekly" dept="Procurement" />}
+      {ce && monthlyModal && <DepartmentDataEntryModal rows={monthly} onSubmit={submitMonthly} onClose={() => setMonthlyModal(false)} cadence="Monthly" dept="Procurement" />}
     </div>
   )
 }

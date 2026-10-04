@@ -3,6 +3,7 @@
 
 import { useState } from 'react'
 import KPIUpdateModal from '../forms/KPIUpdateModal.jsx'
+import { useRole } from '../../context/RoleContext.jsx'
 
 const C = {
   gold: 'var(--brand-gold)', bg: 'var(--bg-primary)', bgCard: 'var(--bg-card)', bgSecondary: 'var(--bg-secondary)',
@@ -105,14 +106,14 @@ function FlightsOperatedCard() {
 
 // ── Daily card 2: OTP Today ───────────────────────────────────────────────────
 
-function OTPTodayCard() {
+function OTPTodayCard({ canEdit }) {
   const [value, setValue] = useState('86%')
   const [modal, setModal] = useState(false)
   const pct = parseFloat(value) || 0
   const row = { indicator: 'On-Time Performance — Today', value, source: 'Flight Operations Control' }
   return (
     <CardWrap>
-      <CardHeader title="On-Time Performance — Today" badge="Daily" onEdit={() => setModal(true)} />
+      <CardHeader title="On-Time Performance — Today" badge="Daily" onEdit={canEdit ? () => setModal(true) : undefined} />
       <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
         <span style={{ fontSize: 32, fontWeight: 700, color: C.green, lineHeight: 1 }}>{value}</span>
       </div>
@@ -124,7 +125,7 @@ function OTPTodayCard() {
       </div>
       <div style={{ fontSize: 11, color: C.textSecondary }}>Benchmark: Warning if &lt; 80%</div>
       <SourceLine text="Flight Operations Control" />
-      {modal && <KPIUpdateModal row={row} rowIndex={0} onClose={() => setModal(false)} onSubmit={(_, v) => setValue(v)} period="Daily" />}
+      {canEdit && modal && <KPIUpdateModal row={row} rowIndex={0} onClose={() => setModal(false)} onSubmit={(_, v) => setValue(v)} period="Daily" />}
     </CardWrap>
   )
 }
@@ -204,6 +205,9 @@ function WeeklyTable() {
 // ── Root ──────────────────────────────────────────────────────────────────────
 
 export default function OperationsTab() {
+  const { canEdit } = useRole()
+  const ce = canEdit('strategicOperations')
+
   return (
     <div style={{ padding: '24px 28px', display: 'flex', flexDirection: 'column', gap: 32 }}>
       <div>
@@ -221,7 +225,7 @@ export default function OperationsTab() {
         <SectionHeader label="Daily" />
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
           <FlightsOperatedCard />
-          <OTPTodayCard />
+          <OTPTodayCard canEdit={ce} />
           <UrgentDecisionsCard />
         </div>
       </div>

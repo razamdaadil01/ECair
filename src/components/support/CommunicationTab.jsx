@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { ExecutionProCard, KPITable, PageHeader, SectionHeader } from './_shared.jsx'
 import DepartmentDataEntryModal from '../forms/DepartmentDataEntryModal.jsx'
+import { useRole } from '../../context/RoleContext.jsx'
 
 const EP = [
   { name: 'Internal Newsletter Development', progress: 35, status: 'amber' },
@@ -29,6 +30,8 @@ const BTN = {
 }
 
 export default function CommunicationTab() {
+  const { canEdit } = useRole()
+  const ce = canEdit('supportCommunication')
   const [weekly, setWeekly] = useState(WEEKLY_INIT)
   const [monthly, setMonthly] = useState(MONTHLY_INIT)
   const [weeklyModal, setWeeklyModal] = useState(false)
@@ -52,15 +55,15 @@ export default function CommunicationTab() {
       <PageHeader dept="Communication" title="Support Functions — Communication" subtitle="9 indicators · Weekly to Monthly" />
       <ExecutionProCard projects={EP} />
       <div>
-        <SectionHeader label="Weekly" action={<button style={BTN} onClick={() => setWeeklyModal(true)}>+ Enter Weekly Data</button>} />
-        <KPITable rows={weekly} onUpdateRow={updateWeeklyRow} period="Week 41 / 2026" />
+        <SectionHeader label="Weekly" action={ce ? <button style={BTN} onClick={() => setWeeklyModal(true)}>+ Enter Weekly Data</button> : null} />
+        <KPITable rows={weekly} onUpdateRow={ce ? updateWeeklyRow : undefined} period="Week 41 / 2026" />
       </div>
       <div>
-        <SectionHeader label="Monthly" action={<button style={BTN} onClick={() => setMonthlyModal(true)}>+ Enter Monthly Data</button>} />
-        <KPITable rows={monthly} onUpdateRow={updateMonthlyRow} period="October 2026" />
+        <SectionHeader label="Monthly" action={ce ? <button style={BTN} onClick={() => setMonthlyModal(true)}>+ Enter Monthly Data</button> : null} />
+        <KPITable rows={monthly} onUpdateRow={ce ? updateMonthlyRow : undefined} period="October 2026" />
       </div>
-      {weeklyModal && <DepartmentDataEntryModal rows={weekly} onSubmit={submitWeekly} onClose={() => setWeeklyModal(false)} cadence="Weekly" dept="Communication" />}
-      {monthlyModal && <DepartmentDataEntryModal rows={monthly} onSubmit={submitMonthly} onClose={() => setMonthlyModal(false)} cadence="Monthly" dept="Communication" />}
+      {ce && weeklyModal && <DepartmentDataEntryModal rows={weekly} onSubmit={submitWeekly} onClose={() => setWeeklyModal(false)} cadence="Weekly" dept="Communication" />}
+      {ce && monthlyModal && <DepartmentDataEntryModal rows={monthly} onSubmit={submitMonthly} onClose={() => setMonthlyModal(false)} cadence="Monthly" dept="Communication" />}
     </div>
   )
 }

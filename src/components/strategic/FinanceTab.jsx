@@ -4,6 +4,7 @@
 
 import { useState } from 'react'
 import KPIUpdateModal from '../forms/KPIUpdateModal.jsx'
+import { useRole } from '../../context/RoleContext.jsx'
 
 // ── Color tokens ──────────────────────────────────────────────────────────────
 const C = {
@@ -166,13 +167,13 @@ function CashBarChart() {
   )
 }
 
-function CashPositionCard() {
+function CashPositionCard({ canEdit }) {
   const [value, setValue] = useState('$184,200')
   const [modal, setModal] = useState(false)
   const row = { indicator: 'Cash Position', value, source: 'Finance Dept. / Daily bank reconciliation' }
   return (
     <CardWrap style={{ flex: 1 }}>
-      <CardHeader title="Cash Position & 7-Day Forecast" badge="Daily" onEdit={() => setModal(true)} />
+      <CardHeader title="Cash Position & 7-Day Forecast" badge="Daily" onEdit={canEdit ? () => setModal(true) : undefined} />
       <div style={{ display: 'flex', alignItems: 'baseline', gap: 10 }}>
         <span style={{ fontSize: 32, fontWeight: 700, color: C.textPrimary, lineHeight: 1 }}>{value}</span>
       </div>
@@ -185,7 +186,7 @@ function CashPositionCard() {
         Alert threshold: net movement negative 3 consecutive days
       </div>
       <SourceLine text="Finance Dept. / Daily bank reconciliation" />
-      {modal && <KPIUpdateModal row={row} rowIndex={0} onClose={() => setModal(false)} onSubmit={(_, v) => setValue(v)} period="Daily" />}
+      {canEdit && modal && <KPIUpdateModal row={row} rowIndex={0} onClose={() => setModal(false)} onSubmit={(_, v) => setValue(v)} period="Daily" />}
     </CardWrap>
   )
 }
@@ -578,6 +579,9 @@ function QuarterlyCard({ title, formula, value, status, statusText, benchmark })
 // ── Finance Tab root ──────────────────────────────────────────────────────────
 
 export default function FinanceTab() {
+  const { canEdit } = useRole()
+  const ce = canEdit('strategicFinance')
+
   return (
     <div style={{ padding: '24px 28px', display: 'flex', flexDirection: 'column', gap: 32 }}>
 
@@ -611,7 +615,7 @@ export default function FinanceTab() {
       <div>
         <SectionHeader label="Daily" />
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-          <CashPositionCard />
+          <CashPositionCard canEdit={ce} />
           <CriticalPaymentsCard />
         </div>
       </div>

@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import { useAppData } from '../context/AppDataContext.jsx'
 import DecisionUpdateModal from './forms/DecisionUpdateModal.jsx'
+import { useRole } from '../context/RoleContext.jsx'
 
 const C = {
   gold: 'var(--brand-gold)', bg: 'var(--bg-primary)', bgCard: 'var(--bg-card)', bgSecondary: 'var(--bg-secondary)',
@@ -35,7 +36,7 @@ function StatCards({ pending, decided }) {
   )
 }
 
-function DecisionCard({ d, onUpdateStatus }) {
+function DecisionCard({ d, onUpdateStatus, canEdit }) {
   const domainColor = { Operations: C.amber, Commercial: C.blue, HR: C.green }
   const domainBg    = { Operations: 'var(--amber-alpha-12)', Commercial: 'var(--blue-alpha-12)', HR: 'var(--green-alpha-12)' }
   const dc   = domainColor[d.domain] || C.gold
@@ -64,14 +65,14 @@ function DecisionCard({ d, onUpdateStatus }) {
             <div style={{ fontSize: 10, color: C.textSecondary, marginBottom: 2 }}>Decision due</div>
             <div style={{ fontSize: 13, fontWeight: 700, color: C.red }}>{d.due}</div>
           </div>
-          <button
+          {canEdit && <button
             onClick={() => onUpdateStatus(d)}
             style={{
               fontSize: 11, fontWeight: 600, padding: '5px 12px', borderRadius: 5,
               border: `1px solid ${C.border}`, backgroundColor: 'var(--surface-subtle)',
               color: C.textPrimary, cursor: 'pointer',
             }}
-          >Update Status</button>
+          >Update Status</button>}
         </div>
       </div>
 
@@ -162,6 +163,8 @@ function SectionHeader({ label }) {
 
 export default function CEODecisions() {
   const { pending, decided } = useAppData()
+  const { canEdit } = useRole()
+  const ce = canEdit('ceoDecisions')
   const [updateModal, setUpdateModal] = useState(null)
 
   return (
@@ -186,7 +189,7 @@ export default function CEODecisions() {
         <SectionHeader label="Pending Decision" />
         <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
           {pending.map(d => (
-            <DecisionCard key={d.id} d={d} onUpdateStatus={setUpdateModal} />
+            <DecisionCard key={d.id} d={d} onUpdateStatus={setUpdateModal} canEdit={ce} />
           ))}
         </div>
       </div>

@@ -2,6 +2,7 @@
 // Main layout: fixed header + fixed sidebar + fixed alert strip + scrollable content
 
 import { useState } from 'react'
+import { useRole, ROLES } from './context/RoleContext.jsx'
 import Header from './components/Header.jsx'
 import Sidebar from './components/Sidebar.jsx'
 import AlertStrip from './components/AlertStrip.jsx'
@@ -60,6 +61,7 @@ export const NAV = [
 export default function App() {
   const [activeTab, setActiveTab] = useState('overview')
   const [collapsed, setCollapsed] = useState(() => localStorage.getItem('ecair-sidebar') === 'collapsed')
+  const { role, activeDepartment } = useRole()
 
   function toggleSidebar() {
     setCollapsed(prev => {
@@ -70,9 +72,15 @@ export default function App() {
   }
 
   // ── Layout constants ────────────────────────────────────────────────────────
-  const HEADER_H = 48   // px
-  const ALERT_H  = 56   // px
+  const HEADER_H  = 48   // px
+  const ALERT_H   = 56   // px
+  const BANNER_H  = 24   // px
   const SIDEBAR_W = collapsed ? 64 : 220
+
+  const roleData = ROLES[role]
+  const bannerLabel = role === 'DEPARTMENT_HEAD' && activeDepartment
+    ? `Department Head — ${activeDepartment}`
+    : roleData.label
 
   return (
     <div
@@ -126,11 +134,29 @@ export default function App() {
           <AlertStrip />
         </div>
 
+        {/* Fixed Role Banner */}
+        <div
+          className="fixed right-0 z-20 flex items-center"
+          style={{
+            left: SIDEBAR_W,
+            transition: 'left 0.2s ease',
+            top: HEADER_H + ALERT_H,
+            height: BANNER_H,
+            backgroundColor: `${roleData.color}1A`,
+            borderLeft: `3px solid ${roleData.color}`,
+            paddingLeft: 14,
+          }}
+        >
+          <span style={{ fontSize: 11, color: roleData.color, fontWeight: 600, letterSpacing: '0.05em' }}>
+            {bannerLabel}
+          </span>
+        </div>
+
         {/* Scrollable main content */}
         <main
           className="flex-1 min-h-0 overflow-y-auto"
           style={{
-            paddingTop: HEADER_H + ALERT_H,
+            paddingTop: HEADER_H + ALERT_H + BANNER_H,
             paddingBottom: 32,
             backgroundColor: 'var(--bg-primary)',
           }}

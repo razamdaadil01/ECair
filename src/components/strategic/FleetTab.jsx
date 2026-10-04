@@ -3,6 +3,7 @@
 
 import { useState } from 'react'
 import KPIUpdateModal from '../forms/KPIUpdateModal.jsx'
+import { useRole } from '../../context/RoleContext.jsx'
 
 const C = {
   gold: 'var(--brand-gold)', bg: 'var(--bg-primary)', bgCard: 'var(--bg-card)', bgSecondary: 'var(--bg-secondary)',
@@ -122,13 +123,13 @@ function FleetStatusCard() {
 
 // ── Weekly: Technical Reliability + Utilisation ───────────────────────────────
 
-function TechReliabilityCard() {
+function TechReliabilityCard({ canEdit }) {
   const [value, setValue] = useState('97.2%')
   const [modal, setModal] = useState(false)
   const row = { indicator: 'Technical Reliability — 7 Days', value, source: 'Maintenance / MRO' }
   return (
     <CardWrap style={{ flex: 1 }}>
-      <CardHeader title="Technical Reliability — 7 Days" badge="Weekly" onEdit={() => setModal(true)} />
+      <CardHeader title="Technical Reliability — 7 Days" badge="Weekly" onEdit={canEdit ? () => setModal(true) : undefined} />
       <div style={{ fontSize: 32, fontWeight: 700, color: C.green, lineHeight: 1 }}>{value}</div>
       <div style={{ fontSize: 11, color: C.textSecondary, fontStyle: 'italic' }}>
         1 − (delayed/cancelled for tech reasons ÷ total departures)
@@ -137,18 +138,18 @@ function TechReliabilityCard() {
       <StatusLine color="green" text="On Track" />
       <div style={{ fontSize: 11, color: C.textSecondary }}>Benchmark: Warning &lt; 95% · Critical &lt; 90%</div>
       <SourceLine text="Maintenance / MRO" />
-      {modal && <KPIUpdateModal row={row} rowIndex={0} onClose={() => setModal(false)} onSubmit={(_, v) => setValue(v)} period="Week 41 / 2026" />}
+      {canEdit && modal && <KPIUpdateModal row={row} rowIndex={0} onClose={() => setModal(false)} onSubmit={(_, v) => setValue(v)} period="Week 41 / 2026" />}
     </CardWrap>
   )
 }
 
-function UtilisationCard() {
+function UtilisationCard({ canEdit }) {
   const [value, setValue] = useState('6.8')
   const [modal, setModal] = useState(false)
   const row = { indicator: 'Fleet Utilisation Rate', value, source: 'MCC / Network Planning' }
   return (
     <CardWrap style={{ flex: 1 }}>
-      <CardHeader title="Fleet Utilisation Rate" badge="Weekly" onEdit={() => setModal(true)} />
+      <CardHeader title="Fleet Utilisation Rate" badge="Weekly" onEdit={canEdit ? () => setModal(true) : undefined} />
       <div style={{ fontSize: 11, color: C.textSecondary }}>Flight hours / aircraft / day</div>
       <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
         <span style={{ fontSize: 28, fontWeight: 700, color: C.blue, lineHeight: 1 }}>{value}</span>
@@ -158,7 +159,7 @@ function UtilisationCard() {
       <div style={{ fontSize: 11, color: C.amber, fontStyle: 'italic' }}>An aircraft on the ground generates no revenue.</div>
       <div style={{ fontSize: 11, color: C.textSecondary }}>Benchmark: Qualitative monitoring — target to be defined with MCC</div>
       <SourceLine text="MCC / Network Planning" />
-      {modal && <KPIUpdateModal row={row} rowIndex={0} onClose={() => setModal(false)} onSubmit={(_, v) => setValue(v)} period="Week 41 / 2026" />}
+      {canEdit && modal && <KPIUpdateModal row={row} rowIndex={0} onClose={() => setModal(false)} onSubmit={(_, v) => setValue(v)} period="Week 41 / 2026" />}
     </CardWrap>
   )
 }
@@ -199,6 +200,9 @@ function FleetCompositionCard() {
 // ── Root ──────────────────────────────────────────────────────────────────────
 
 export default function FleetTab() {
+  const { canEdit } = useRole()
+  const ce = canEdit('strategicFleet')
+
   return (
     <div style={{ padding: '24px 28px', display: 'flex', flexDirection: 'column', gap: 32 }}>
       <div>
@@ -220,8 +224,8 @@ export default function FleetTab() {
       <div>
         <SectionHeader label="Weekly" />
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
-          <TechReliabilityCard />
-          <UtilisationCard />
+          <TechReliabilityCard canEdit={ce} />
+          <UtilisationCard canEdit={ce} />
         </div>
       </div>
 
