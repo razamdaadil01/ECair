@@ -132,12 +132,12 @@ function DomainCard({ domain }) {
       </div>
 
       {/* Metrics */}
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-4">
         {domain.metrics.map(m => (
-          <div key={m.label} className="flex items-baseline justify-between gap-2">
+          <div key={m.label} className="flex flex-col gap-0.5">
             <span style={{ color: C.textSecondary, fontSize: 11 }}>{m.label}</span>
-            <div className="flex items-baseline gap-1">
-              <span style={{ color: C.textPrimary, fontSize: 16, fontWeight: 600 }}>
+            <div className="flex items-baseline gap-1.5">
+              <span style={{ color: C.textPrimary, fontSize: 24, fontWeight: 700, lineHeight: 1.1 }}>
                 {m.value}
               </span>
               {m.note && (
@@ -152,7 +152,11 @@ function DomainCard({ domain }) {
 
       {/* View link */}
       <div style={{ marginTop: 'auto', paddingTop: 8, borderTop: `1px solid ${C.border}` }}>
-        <span style={{ color: C.gold, fontSize: 11, fontWeight: 500, cursor: 'pointer' }}>
+        <span
+          style={{ color: C.gold, fontSize: 11, fontWeight: 500, cursor: 'pointer' }}
+          onMouseEnter={e => { e.currentTarget.style.textDecoration = 'underline' }}
+          onMouseLeave={e => { e.currentTarget.style.textDecoration = 'none' }}
+        >
           View Details →
         </span>
       </div>
