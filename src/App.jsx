@@ -20,6 +20,8 @@ import ITTab from './components/support/ITTab.jsx'
 import ProductServiceTab from './components/support/ProductServiceTab.jsx'
 import ProcurementTab from './components/support/ProcurementTab.jsx'
 import GeneralServicesTab from './components/support/GeneralServicesTab.jsx'
+import RiskRegister from './components/RiskRegister.jsx'
+import CEODecisions from './components/CEODecisions.jsx'
 import Placeholder from './components/Placeholder.jsx'
 
 // Navigation structure — tabs rendered in Sidebar
@@ -132,6 +134,8 @@ export default function App() {
            activeTab === 'product'    ? <ProductServiceTab />   :
            activeTab === 'procurement' ? <ProcurementTab />     :
            activeTab === 'general'    ? <GeneralServicesTab />  :
+           activeTab === 'risk'       ? <RiskRegister />        :
+           activeTab === 'decisions'  ? <CEODecisions />        :
            <Placeholder tab={activeTab} />}
         </main>
       </div>
