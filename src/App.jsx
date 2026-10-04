@@ -6,7 +6,11 @@ import Header from './components/Header.jsx'
 import Sidebar from './components/Sidebar.jsx'
 import AlertStrip from './components/AlertStrip.jsx'
 import Overview from './components/Overview.jsx'
+import CommercialTab from './components/strategic/CommercialTab.jsx'
 import FinanceTab from './components/strategic/FinanceTab.jsx'
+import OperationsTab from './components/strategic/OperationsTab.jsx'
+import FleetTab from './components/strategic/FleetTab.jsx'
+import SafetyTab from './components/strategic/SafetyTab.jsx'
 import Placeholder from './components/Placeholder.jsx'
 
 // Navigation structure — tabs rendered in Sidebar
@@ -104,13 +108,13 @@ export default function App() {
             backgroundColor: '#070D1A',
           }}
         >
-          {activeTab === 'overview' ? (
-            <Overview />
-          ) : activeTab === 'finance' ? (
-            <FinanceTab />
-          ) : (
-            <Placeholder tab={activeTab} />
-          )}
+          {activeTab === 'overview'    ? <Overview />      :
+           activeTab === 'commercial' ? <CommercialTab />  :
+           activeTab === 'finance'    ? <FinanceTab />     :
+           activeTab === 'operations' ? <OperationsTab />  :
+           activeTab === 'fleet'      ? <FleetTab />       :
+           activeTab === 'safety'     ? <SafetyTab />      :
+           <Placeholder tab={activeTab} />}
         </main>
       </div>
     </div>
