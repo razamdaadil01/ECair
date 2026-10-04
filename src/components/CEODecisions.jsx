@@ -3,9 +3,9 @@
 import { useState } from 'react'
 
 const C = {
-  gold: '#C9A84C', bg: '#070D1A', bgCard: '#111E33', bgSecondary: '#0D1626',
-  border: '#1A2B45', textPrimary: '#F0F4F8', textSecondary: '#7A92B0',
-  green: '#22C55E', amber: '#F59E0B', red: '#EF4444', blue: '#3B82F6',
+  gold: 'var(--brand-gold)', bg: 'var(--bg-primary)', bgCard: 'var(--bg-card)', bgSecondary: 'var(--bg-secondary)',
+  border: 'var(--border-subtle)', textPrimary: 'var(--text-primary)', textSecondary: 'var(--text-secondary)',
+  green: 'var(--status-green)', amber: 'var(--status-amber)', red: 'var(--status-red)', blue: 'var(--status-blue)',
 }
 
 const PENDING = [
@@ -82,7 +82,9 @@ function StatCards() {
 
 function DecisionCard({ d }) {
   const domainColor = { Operations: C.amber, Commercial: C.blue, HR: C.green }
-  const dc = domainColor[d.domain] || C.gold
+  const domainBg    = { Operations: 'var(--amber-alpha-12)', Commercial: 'var(--blue-alpha-12)', HR: 'var(--green-alpha-12)' }
+  const dc  = domainColor[d.domain] || C.gold
+  const dcBg = domainBg[d.domain]  || 'var(--gold-alpha-12)'
 
   return (
     <div style={{
@@ -97,7 +99,7 @@ function DecisionCard({ d }) {
             <span style={{ fontSize: 11, fontWeight: 700, color: C.gold }}>{d.id}</span>
             <span style={{
               fontSize: 10, fontWeight: 600, color: dc,
-              backgroundColor: `${dc}18`, padding: '2px 8px', borderRadius: 4,
+              backgroundColor: dcBg, padding: '2px 8px', borderRadius: 4,
             }}>{d.domain}</span>
           </div>
           <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: C.textPrimary }}>{d.title}</h3>
@@ -127,7 +129,7 @@ function DecisionCard({ d }) {
         </div>
 
         {/* Recommendation */}
-        <div style={{ backgroundColor: 'rgba(201,168,76,0.06)', border: `1px solid rgba(201,168,76,0.25)`, borderRadius: 6, padding: '14px 16px' }}>
+        <div style={{ backgroundColor: 'var(--gold-alpha-7)', border: `1px solid var(--gold-alpha-12)`, borderRadius: 6, padding: '14px 16px' }}>
           <div style={{ fontSize: 10, fontWeight: 700, color: C.gold, letterSpacing: '0.12em', textTransform: 'uppercase', marginBottom: 10 }}>Recommendation</div>
           <p style={{ margin: 0, fontSize: 12, color: C.textPrimary, lineHeight: 1.65 }}>{d.recommendation}</p>
         </div>
@@ -169,7 +171,7 @@ function DecidedCard({ d }) {
         </div>
         <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
           <span style={{ fontSize: 11, color: C.textSecondary }}>{d.decided}</span>
-          <span style={{ fontSize: 10, color: C.green, backgroundColor: 'rgba(34,197,94,0.12)', padding: '2px 8px', borderRadius: 4, fontWeight: 600 }}>Decided</span>
+          <span style={{ fontSize: 10, color: C.green, backgroundColor: 'var(--green-alpha-12)', padding: '2px 8px', borderRadius: 4, fontWeight: 600 }}>Decided</span>
           <span style={{ fontSize: 14, color: C.textSecondary }}>{open ? '▲' : '▼'}</span>
         </div>
       </button>

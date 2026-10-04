@@ -2,15 +2,16 @@
 // Strategic Indicators > Fleet — 4 KPIs: Daily (1) · Weekly (2) · Quarterly (1)
 
 const C = {
-  gold: '#C9A84C', bg: '#070D1A', bgCard: '#111E33', bgSecondary: '#0D1626',
-  border: '#1A2B45', textPrimary: '#F0F4F8', textSecondary: '#7A92B0',
-  green: '#22C55E', amber: '#F59E0B', red: '#EF4444', blue: '#3B82F6',
+  gold: 'var(--brand-gold)', bg: 'var(--bg-primary)', bgCard: 'var(--bg-card)', bgSecondary: 'var(--bg-secondary)',
+  border: 'var(--border-subtle)', textPrimary: 'var(--text-primary)', textSecondary: 'var(--text-secondary)',
+  green: 'var(--status-green)', amber: 'var(--status-amber)', red: 'var(--status-red)', blue: 'var(--status-blue)',
 }
 const SC = { green: C.green, amber: C.amber, red: C.red, blue: C.blue }
+const GLOW = { green: 'rgba(34,197,94,0.33)', amber: 'rgba(245,158,11,0.33)', red: 'rgba(239,68,68,0.33)', blue: 'rgba(59,130,246,0.33)' }
 
 function StatusDot({ color, size = 8 }) {
   const bg = SC[color] || color
-  return <span style={{ display: 'inline-block', flexShrink: 0, width: size, height: size, borderRadius: '50%', backgroundColor: bg, boxShadow: `0 0 5px ${bg}55` }} />
+  return <span style={{ display: 'inline-block', flexShrink: 0, width: size, height: size, borderRadius: '50%', backgroundColor: bg, boxShadow: `0 0 5px ${GLOW[color] || 'transparent'}` }} />
 }
 function StatusLine({ color, text }) {
   return (
@@ -21,7 +22,7 @@ function StatusLine({ color, text }) {
   )
 }
 function CadenceBadge({ label }) {
-  return <span style={{ fontSize: 10, color: C.textSecondary, fontWeight: 500, backgroundColor: 'rgba(255,255,255,0.05)', border: `1px solid ${C.border}`, padding: '2px 7px', borderRadius: 4 }}>{label}</span>
+  return <span style={{ fontSize: 10, color: C.textSecondary, fontWeight: 500, backgroundColor: 'var(--surface-subtle)', border: `1px solid ${C.border}`, padding: '2px 7px', borderRadius: 4 }}>{label}</span>
 }
 function SourceLine({ text }) {
   return <div style={{ fontSize: 11, color: C.textSecondary, marginTop: 'auto', paddingTop: 10 }}>Source: {text}</div>
@@ -66,7 +67,7 @@ function AircraftBlock({ reg, type, status, label }) {
       flex: 1,
       borderRadius: 8,
       border: `2px solid ${SC[status]}`,
-      backgroundColor: isAOG ? 'rgba(239,68,68,0.08)' : 'rgba(34,197,94,0.06)',
+      backgroundColor: isAOG ? 'var(--red-alpha-8)' : 'var(--green-alpha-6)',
       padding: '14px 16px',
       display: 'flex', flexDirection: 'column', gap: 6,
       backgroundImage: isAOG

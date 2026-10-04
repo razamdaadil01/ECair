@@ -2,15 +2,21 @@
 // Imported by every Support Function department tab.
 
 export const C = {
-  gold: '#C9A84C', bg: '#070D1A', bgCard: '#111E33', bgSecondary: '#0D1626',
-  border: '#1A2B45', textPrimary: '#F0F4F8', textSecondary: '#7A92B0',
-  green: '#22C55E', amber: '#F59E0B', red: '#EF4444', blue: '#3B82F6',
+  gold: 'var(--brand-gold)', bg: 'var(--bg-primary)', bgCard: 'var(--bg-card)', bgSecondary: 'var(--bg-secondary)',
+  border: 'var(--border-subtle)', textPrimary: 'var(--text-primary)', textSecondary: 'var(--text-secondary)',
+  green: 'var(--status-green)', amber: 'var(--status-amber)', red: 'var(--status-red)', blue: 'var(--status-blue)',
 }
 export const SC = { green: C.green, amber: C.amber, red: C.red, blue: C.blue }
 
+// Explicit rgba glow values for StatusDot shadows (same in both themes — decorative only)
+const GLOW = {
+  green: 'rgba(34,197,94,0.33)', amber: 'rgba(245,158,11,0.33)',
+  red: 'rgba(239,68,68,0.33)',   blue: 'rgba(59,130,246,0.33)',
+}
+
 export function StatusDot({ color, size = 8 }) {
   const bg = SC[color] || color
-  return <span style={{ display: 'inline-block', flexShrink: 0, width: size, height: size, borderRadius: '50%', backgroundColor: bg, boxShadow: `0 0 5px ${bg}55` }} />
+  return <span style={{ display: 'inline-block', flexShrink: 0, width: size, height: size, borderRadius: '50%', backgroundColor: bg, boxShadow: `0 0 5px ${GLOW[color] || 'transparent'}` }} />
 }
 
 export function StatusLine({ color, text }) {
@@ -23,7 +29,7 @@ export function StatusLine({ color, text }) {
 }
 
 export function CadenceBadge({ label }) {
-  return <span style={{ fontSize: 10, color: C.textSecondary, fontWeight: 500, backgroundColor: 'rgba(255,255,255,0.05)', border: `1px solid ${C.border}`, padding: '2px 7px', borderRadius: 4 }}>{label}</span>
+  return <span style={{ fontSize: 10, color: C.textSecondary, fontWeight: 500, backgroundColor: 'var(--surface-subtle)', border: `1px solid ${C.border}`, padding: '2px 7px', borderRadius: 4 }}>{label}</span>
 }
 
 export function SourceLine({ text }) {
@@ -65,15 +71,8 @@ export function ProgressBar({ pct, color }) {
 }
 
 // ── KPI Table ─────────────────────────────────────────────────────────────────
-// rows: [{ indicator, value, benchmark, status, source }]
-// Upcoming rows detected by value === '—' (both value and benchmark are '—')
 
-const STATUS_LABEL = {
-  green: 'On Track',
-  amber: 'Warning',
-  red:   'Alert',
-  blue:  'Info',
-}
+const STATUS_LABEL = { green: 'On Track', amber: 'Warning', red: 'Alert', blue: 'Info' }
 
 export function KPITable({ rows }) {
   return (
@@ -102,7 +101,7 @@ export function KPITable({ rows }) {
                 </td>
                 <td style={{ padding: '11px 14px', color: C.textPrimary, fontWeight: 600, borderBottom: `1px solid ${C.border}`, verticalAlign: 'top' }}>
                   {upcoming
-                    ? <span style={{ fontSize: 10, color: C.blue, backgroundColor: 'rgba(59,130,246,0.12)', padding: '2px 7px', borderRadius: 4, fontWeight: 600 }}>Upcoming</span>
+                    ? <span style={{ fontSize: 10, color: C.blue, backgroundColor: 'var(--blue-alpha-12)', padding: '2px 7px', borderRadius: 4, fontWeight: 600 }}>Upcoming</span>
                     : row.value
                   }
                 </td>
@@ -125,8 +124,6 @@ export function KPITable({ rows }) {
 }
 
 // ── Execution Pro Card ────────────────────────────────────────────────────────
-// projects: [{ name, progress, status }]
-// noProjects: bool — shows amber warning instead
 
 const EP_STATUS_LABEL = { green: 'On Track', amber: 'At Risk', red: 'Delayed', blue: 'Upcoming' }
 
@@ -135,7 +132,7 @@ export function ExecutionProCard({ projects, noProjects }) {
     return (
       <div style={{
         backgroundColor: C.bgCard,
-        border: `1px solid rgba(245,158,11,0.4)`,
+        border: `1px solid var(--amber-border-dim)`,
         borderLeft: `4px solid ${C.amber}`,
         borderRadius: 8,
         padding: '18px 20px',
@@ -144,7 +141,7 @@ export function ExecutionProCard({ projects, noProjects }) {
         <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
           <span style={{ fontSize: 12, fontWeight: 700, color: C.amber }}>Action Plan Progress — Execution Pro</span>
         </div>
-        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, padding: '12px 14px', backgroundColor: 'rgba(245,158,11,0.07)', borderRadius: 6 }}>
+        <div style={{ display: 'flex', alignItems: 'flex-start', gap: 8, padding: '12px 14px', backgroundColor: 'var(--amber-alpha-7)', borderRadius: 6 }}>
           <span style={{ color: C.amber, fontSize: 14, flexShrink: 0 }}>⚠</span>
           <p style={{ margin: 0, fontSize: 12, color: C.amber, lineHeight: 1.6 }}>
             No projects currently tracked in Execution Pro for this function. A dedicated project should be created, or confirm that day-to-day indicators are sufficient.
