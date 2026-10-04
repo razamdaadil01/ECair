@@ -4,10 +4,13 @@ const ThemeContext = createContext(null)
 
 export function ThemeProvider({ children }) {
   const [theme, setTheme] = useState(() => {
-    try { return localStorage.getItem('ecair-theme') || 'dark' } catch { return 'dark' }
+    try { return localStorage.getItem('ecair-theme') || 'light' } catch { return 'light' }
   })
 
   useEffect(() => {
+    if (!localStorage.getItem('ecair-theme')) {
+      try { localStorage.setItem('ecair-theme', 'light') } catch {}
+    }
     document.documentElement.className = theme
     try { localStorage.setItem('ecair-theme', theme) } catch {}
   }, [theme])
