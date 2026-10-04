@@ -2,6 +2,7 @@
 // Fixed top bar: ECAir brand mark · live clock · theme toggle · role switcher
 
 import { useState, useEffect, useRef } from 'react'
+import ReactDOM from 'react-dom'
 import { useTheme } from '../context/ThemeContext.jsx'
 import { useRole, ROLES, DEPARTMENTS } from '../context/RoleContext.jsx'
 
@@ -23,20 +24,40 @@ function LiveClock() {
   )
 }
 
+const ROLE_ORDER = ['CEO', 'FINANCE_TEAM', 'COMMERCIAL_TEAM', 'OPS_TEAM', 'MCC_TECHNICAL', 'SAFETY_OFFICER', 'DEPARTMENT_HEAD', 'EXECUTIVE_MGMT', 'ADMIN']
+
 function RoleSwitcher() {
   const { role, activeDepartment, setRole, setActiveDepartment } = useRole()
   const [open, setOpen] = useState(false)
   const [dropdownPos, setDropdownPos] = useState({ top: 0, right: 0 })
-  const ref = useRef(null)
   const buttonRef = useRef(null)
+  const dropdownRef = useRef(null)
+
+  function calcPos() {
+    if (buttonRef.current) {
+      const rect = buttonRef.current.getBoundingClientRect()
+      setDropdownPos({ top: rect.bottom + 4, right: window.innerWidth - rect.right })
+    }
+  }
 
   useEffect(() => {
     if (!open) return
     function handleClick(e) {
-      if (ref.current && !ref.current.contains(e.target)) setOpen(false)
+      if (
+        buttonRef.current && !buttonRef.current.contains(e.target) &&
+        dropdownRef.current && !dropdownRef.current.contains(e.target)
+      ) setOpen(false)
     }
     document.addEventListener('mousedown', handleClick)
     return () => document.removeEventListener('mousedown', handleClick)
+  }, [open])
+
+  useEffect(() => {
+    function handleResize() {
+      if (open) calcPos()
+    }
+    window.addEventListener('resize', handleResize)
+    return () => window.removeEventListener('resize', handleResize)
   }, [open])
 
   const currentRole = ROLES[role]
@@ -45,45 +66,32 @@ function RoleSwitcher() {
     : currentRole.label
 
   function handleButtonClick() {
-    if (!open && buttonRef.current) {
-      const rect = buttonRef.current.getBoundingClientRect()
-      setDropdownPos({ top: rect.bottom + 4, right: window.innerWidth - rect.right })
-    }
+    if (!open) calcPos()
     setOpen(o => !o)
   }
 
-  return (
-    <div ref={ref} style={{ position: 'relative' }}>
-      <button
-        ref={buttonRef}
-        onClick={handleButtonClick}
-        style={{
-          display: 'flex', alignItems: 'center', gap: 6,
-          background: 'none', border: '1px solid var(--border-subtle)',
-          borderRadius: 6, cursor: 'pointer', padding: '4px 10px',
-          fontSize: 12, color: 'var(--text-primary)', whiteSpace: 'nowrap',
-          transition: 'border-color 0.15s',
-        }}
-        onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--brand-gold)' }}
-        onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border-subtle)' }}
-      >
-        <span style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: currentRole.color, flexShrink: 0 }} />
-        <span>{label}</span>
-        <span style={{ fontSize: 9, color: 'var(--text-secondary)', marginLeft: 2 }}>{open ? '▲' : '▼'}</span>
-      </button>
-
-      {open && (
-        <div style={{
-          position: 'fixed', top: dropdownPos.top, right: dropdownPos.right,
-          backgroundColor: 'var(--bg-card)',
-          border: '1px solid var(--border-subtle)',
-          borderRadius: 8, padding: '4px 0',
-          minWidth: 210, zIndex: 9999,
-          boxShadow: '0 8px 24px rgba(0,0,0,0.3)',
-        }}>
-          {Object.values(ROLES).map(r => (
+  const dropdown = open ? ReactDOM.createPortal(
+    <div
+      ref={dropdownRef}
+      style={{
+        position: 'fixed', top: dropdownPos.top, right: dropdownPos.right,
+        backgroundColor: 'var(--bg-card)',
+        border: '1px solid var(--border-subtle)',
+        borderRadius: 8, padding: '4px 0',
+        minWidth: 220, zIndex: 99999,
+        boxShadow: '0 8px 24px rgba(0,0,0,0.4)',
+      }}
+    >
+      {ROLE_ORDER.map((id, idx) => {
+        if (id === 'ADMIN' && ROLE_ORDER[idx - 1] !== 'ADMIN') {
+          // separator before Admin
+        }
+        const r = ROLES[id]
+        const isAdminWithSep = id === 'ADMIN'
+        return (
+          <div key={r.id}>
+            {isAdminWithSep && <div style={{ height: 1, backgroundColor: 'var(--border-subtle)', margin: '4px 0' }} />}
             <div
-              key={r.id}
               onClick={() => {
                 setRole(r.id)
                 if (r.id !== 'DEPARTMENT_HEAD') setOpen(false)
@@ -101,36 +109,60 @@ function RoleSwitcher() {
               <span style={{ flex: 1 }}>{r.label}</span>
               {role === r.id && <span style={{ fontSize: 10, color: 'var(--text-secondary)' }}>✓</span>}
             </div>
-          ))}
+          </div>
+        )
+      })}
 
-          {role === 'DEPARTMENT_HEAD' && (
-            <>
-              <div style={{ height: 1, backgroundColor: 'var(--border-subtle)', margin: '4px 0' }} />
-              <div style={{ padding: '5px 14px 3px', fontSize: 10, fontWeight: 600, color: 'var(--text-secondary)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
-                Department
-              </div>
-              {DEPARTMENTS.map(dept => (
-                <div
-                  key={dept}
-                  onClick={() => { setActiveDepartment(dept); setOpen(false) }}
-                  style={{
-                    display: 'flex', alignItems: 'center', gap: 8,
-                    padding: '7px 14px 7px 30px', cursor: 'pointer', fontSize: 12,
-                    color: 'var(--text-primary)',
-                    backgroundColor: activeDepartment === dept ? 'var(--surface-subtle)' : 'transparent',
-                  }}
-                  onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'var(--surface-subtle)' }}
-                  onMouseLeave={e => { e.currentTarget.style.backgroundColor = activeDepartment === dept ? 'var(--surface-subtle)' : 'transparent' }}
-                >
-                  <span style={{ flex: 1 }}>{dept}</span>
-                  {activeDepartment === dept && <span style={{ fontSize: 10, color: 'var(--text-secondary)' }}>✓</span>}
-                </div>
-              ))}
-            </>
-          )}
-        </div>
+      {role === 'DEPARTMENT_HEAD' && (
+        <>
+          <div style={{ height: 1, backgroundColor: 'var(--border-subtle)', margin: '4px 0' }} />
+          <div style={{ padding: '5px 14px 3px', fontSize: 10, fontWeight: 600, color: 'var(--text-secondary)', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+            Department
+          </div>
+          {DEPARTMENTS.map(dept => (
+            <div
+              key={dept}
+              onClick={() => { setActiveDepartment(dept); setOpen(false) }}
+              style={{
+                display: 'flex', alignItems: 'center', gap: 8,
+                padding: '7px 14px 7px 30px', cursor: 'pointer', fontSize: 12,
+                color: 'var(--text-primary)',
+                backgroundColor: activeDepartment === dept ? 'var(--surface-subtle)' : 'transparent',
+              }}
+              onMouseEnter={e => { e.currentTarget.style.backgroundColor = 'var(--surface-subtle)' }}
+              onMouseLeave={e => { e.currentTarget.style.backgroundColor = activeDepartment === dept ? 'var(--surface-subtle)' : 'transparent' }}
+            >
+              <span style={{ flex: 1 }}>{dept}</span>
+              {activeDepartment === dept && <span style={{ fontSize: 10, color: 'var(--text-secondary)' }}>✓</span>}
+            </div>
+          ))}
+        </>
       )}
-    </div>
+    </div>,
+    document.body
+  ) : null
+
+  return (
+    <>
+      <button
+        ref={buttonRef}
+        onClick={handleButtonClick}
+        style={{
+          display: 'flex', alignItems: 'center', gap: 6,
+          background: 'none', border: '1px solid var(--border-subtle)',
+          borderRadius: 6, cursor: 'pointer', padding: '4px 10px',
+          fontSize: 12, color: 'var(--text-primary)', whiteSpace: 'nowrap',
+          transition: 'border-color 0.15s',
+        }}
+        onMouseEnter={e => { e.currentTarget.style.borderColor = 'var(--brand-gold)' }}
+        onMouseLeave={e => { e.currentTarget.style.borderColor = 'var(--border-subtle)' }}
+      >
+        <span style={{ width: 8, height: 8, borderRadius: '50%', backgroundColor: currentRole.color, flexShrink: 0 }} />
+        <span>{label}</span>
+        <span style={{ fontSize: 9, color: 'var(--text-secondary)', marginLeft: 2 }}>{open ? '▲' : '▼'}</span>
+      </button>
+      {dropdown}
+    </>
   )
 }
 
