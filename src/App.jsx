@@ -46,7 +46,7 @@ export default function App() {
 
   // ── Layout constants ────────────────────────────────────────────────────────
   const HEADER_H = 48   // px
-  const ALERT_H  = 44   // px
+  const ALERT_H  = 56   // px
   const SIDEBAR_W = 220 // px
 
   return (

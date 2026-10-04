@@ -15,8 +15,8 @@ function Signal({ label, value, dot, sub, isLast }) {
     <div
       className="flex items-center gap-3 flex-1"
       style={{
-        padding: '0 20px',
-        borderRight: isLast ? 'none' : '1px solid #1A2B45',
+        padding: '0 28px',
+        borderRight: isLast ? 'none' : '1px solid rgba(26,43,69,0.6)',
         height: '100%',
       }}
     >
@@ -33,7 +33,7 @@ function Signal({ label, value, dot, sub, isLast }) {
 
       {/* Text block */}
       <div className="flex flex-col" style={{ lineHeight: 1.25 }}>
-        <span style={{ fontSize: 10, fontWeight: 600, color: '#7A92B0', letterSpacing: '0.1em', textTransform: 'uppercase' }}>
+        <span style={{ fontSize: 10, fontWeight: 600, color: '#7A92B0', letterSpacing: '0.15em', textTransform: 'uppercase' }}>
           {label}
         </span>
         <span style={{ fontSize: 13, fontWeight: 600, color: '#F0F4F8' }}>
@@ -42,7 +42,7 @@ function Signal({ label, value, dot, sub, isLast }) {
       </div>
 
       {/* Subtext */}
-      <span style={{ fontSize: 11, color: '#7A92B0', marginLeft: 4 }}>
+      <span style={{ fontSize: 11, color: '#94A3B8', marginLeft: 4 }}>
         {sub}
       </span>
     </div>
