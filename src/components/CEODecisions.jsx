@@ -1,6 +1,8 @@
 // ─── CEO Decisions ────────────────────────────────────────────────────────────
 
 import { useState } from 'react'
+import { useAppData } from '../context/AppDataContext.jsx'
+import DecisionUpdateModal from './forms/DecisionUpdateModal.jsx'
 
 const C = {
   gold: 'var(--brand-gold)', bg: 'var(--bg-primary)', bgCard: 'var(--bg-card)', bgSecondary: 'var(--bg-secondary)',
@@ -8,59 +10,12 @@ const C = {
   green: 'var(--status-green)', amber: 'var(--status-amber)', red: 'var(--status-red)', blue: 'var(--status-blue)',
 }
 
-const PENDING = [
-  {
-    id: 'D-2025-14',
-    title: 'Fleet Maintenance Contract Renewal',
-    due: '2025-10-10',
-    domain: 'Operations',
-    options: [
-      { label: 'Renew current supplier', note: '+8% rate increase, 24-month term' },
-      { label: 'Switch to AeroCare MRO', note: 'Competitive rate, 3-month transition risk' },
-      { label: 'Hybrid model', note: 'Keep line maintenance in-house, outsource heavy checks' },
-    ],
-    recommendation: 'Option 2 — AeroCare MRO offers a 12% cost saving vs renewal and has completed the pre-qualification audit. Transition risk is manageable with a 90-day parallel-run clause.',
-    facts: ['Current contract expires 2025-11-30', 'Annual spend: $1.2M', 'AeroCare audit score: 94/100', '3 competing bids received'],
-  },
-  {
-    id: 'D-2025-15',
-    title: 'New Route: Brazzaville – Nairobi',
-    due: '2025-10-15',
-    domain: 'Commercial',
-    options: [
-      { label: 'Launch Q1 2026 (3× weekly)', note: 'Full committed slot at NBO, $480K pre-launch cost' },
-      { label: 'Launch Q2 2026 (2× weekly)', note: 'Reduced capex, lower initial frequency' },
-      { label: 'Defer to 2027', note: 'Avoids cash pressure, cedes first-mover advantage' },
-    ],
-    recommendation: 'Option 1 — Demand analysis shows 78% projected load factor in Month 3. Kenya Aviation Authority slot approval is valid only until Dec 2025; deferral forfeits the slot.',
-    facts: ['Slot valid until 2025-12-31', 'Break-even: Month 5 at 72% LF', 'No direct competitor on route', 'Nairobi hub connects 11 onward destinations'],
-  },
-  {
-    id: 'D-2025-16',
-    title: 'HR Salary Review 2025',
-    due: '2025-10-20',
-    domain: 'HR',
-    options: [
-      { label: '4% across-the-board increase', note: 'Budget impact +$190K/yr, high staff approval' },
-      { label: 'Merit-based 0–6%', note: 'Budget impact +$140–220K/yr, differentiated reward' },
-      { label: 'Freeze salaries', note: 'No budget impact; high retention risk in current market' },
-    ],
-    recommendation: 'Option 2 — Merit-based increase aligns with the 2025–2028 HR strategy. The CHRO proposes 3% base + up to 3% merit. Retains top performers without blanket cost.',
-    facts: ['Current total payroll: $4.7M/yr', 'Turnover rate: 11.4% (industry avg 9%)', 'Last increase: 2023 (2.5%)', 'Staff satisfaction score: 64/100'],
-  },
-]
-
-const DECIDED = [
-  { id: 'D-2025-11', title: 'Aircraft Wet Lease Extension — B737 YA-ECA', decided: '2025-09-15', outcome: 'Approved — 6-month extension at current rate' },
-  { id: 'D-2025-12', title: 'IT Server Acquisition (Dual-Redundancy)',     decided: '2025-09-28', outcome: 'Approved — Budget $320K, procurement to begin Oct 2025' },
-  { id: 'D-2025-13', title: 'Catering Supplier Change — International Routes', decided: '2025-10-01', outcome: 'Deferred — Additional cost-benefit analysis requested by CFO' },
-]
-
-function StatCards() {
+function StatCards({ pending, decided }) {
+  const scheduled = pending.filter(p => p.status === 'Scheduled').length
   const cards = [
-    { label: 'Pending Decision', value: PENDING.length, color: C.red,   icon: '⏳' },
-    { label: 'Scheduled',        value: 1,               color: C.blue,  icon: '📅' },
-    { label: 'Decided (Oct)',    value: DECIDED.length,  color: C.green, icon: '✅' },
+    { label: 'Pending Decision', value: pending.filter(p => p.status !== 'Scheduled').length, color: C.red,   icon: '⏳' },
+    { label: 'Scheduled',        value: scheduled,                                              color: C.blue,  icon: '📅' },
+    { label: 'Decided (Oct)',    value: decided.length,                                         color: C.green, icon: '✅' },
   ]
   return (
     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }}>
@@ -80,11 +35,11 @@ function StatCards() {
   )
 }
 
-function DecisionCard({ d }) {
+function DecisionCard({ d, onUpdateStatus }) {
   const domainColor = { Operations: C.amber, Commercial: C.blue, HR: C.green }
   const domainBg    = { Operations: 'var(--amber-alpha-12)', Commercial: 'var(--blue-alpha-12)', HR: 'var(--green-alpha-12)' }
-  const dc  = domainColor[d.domain] || C.gold
-  const dcBg = domainBg[d.domain]  || 'var(--gold-alpha-12)'
+  const dc   = domainColor[d.domain] || C.gold
+  const dcBg = domainBg[d.domain]   || 'var(--gold-alpha-12)'
 
   return (
     <div style={{
@@ -104,9 +59,19 @@ function DecisionCard({ d }) {
           </div>
           <h3 style={{ margin: 0, fontSize: 16, fontWeight: 700, color: C.textPrimary }}>{d.title}</h3>
         </div>
-        <div style={{ flexShrink: 0, textAlign: 'right' }}>
-          <div style={{ fontSize: 10, color: C.textSecondary, marginBottom: 2 }}>Decision due</div>
-          <div style={{ fontSize: 13, fontWeight: 700, color: C.red }}>{d.due}</div>
+        <div style={{ flexShrink: 0, textAlign: 'right', display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: 8 }}>
+          <div>
+            <div style={{ fontSize: 10, color: C.textSecondary, marginBottom: 2 }}>Decision due</div>
+            <div style={{ fontSize: 13, fontWeight: 700, color: C.red }}>{d.due}</div>
+          </div>
+          <button
+            onClick={() => onUpdateStatus(d)}
+            style={{
+              fontSize: 11, fontWeight: 600, padding: '5px 12px', borderRadius: 5,
+              border: `1px solid ${C.border}`, backgroundColor: 'var(--surface-subtle)',
+              color: C.textPrimary, cursor: 'pointer',
+            }}
+          >Update Status</button>
         </div>
       </div>
 
@@ -196,6 +161,9 @@ function SectionHeader({ label }) {
 }
 
 export default function CEODecisions() {
+  const { pending, decided } = useAppData()
+  const [updateModal, setUpdateModal] = useState(null)
+
   return (
     <div style={{ padding: '24px 28px', display: 'flex', flexDirection: 'column', gap: 32 }}>
       {/* Page Header */}
@@ -206,25 +174,36 @@ export default function CEODecisions() {
         </div>
         <div style={{ paddingLeft: 14, borderLeft: `3px solid ${C.gold}` }}>
           <h1 style={{ margin: 0, fontSize: 22, fontWeight: 700, color: C.textPrimary, lineHeight: 1.2 }}>CEO Decisions</h1>
-          <p style={{ margin: '4px 0 0', fontSize: 13, color: C.textSecondary }}>3 pending · 1 scheduled · 3 decided this month</p>
+          <p style={{ margin: '4px 0 0', fontSize: 13, color: C.textSecondary }}>
+            {pending.length} pending · {decided.length} decided this month
+          </p>
         </div>
       </div>
 
-      <StatCards />
+      <StatCards pending={pending} decided={decided} />
 
       <div>
         <SectionHeader label="Pending Decision" />
         <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
-          {PENDING.map(d => <DecisionCard key={d.id} d={d} />)}
+          {pending.map(d => (
+            <DecisionCard key={d.id} d={d} onUpdateStatus={setUpdateModal} />
+          ))}
         </div>
       </div>
 
       <div>
         <SectionHeader label="Decided" />
         <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-          {DECIDED.map(d => <DecidedCard key={d.id} d={d} />)}
+          {decided.map(d => <DecidedCard key={d.id} d={d} />)}
         </div>
       </div>
+
+      {updateModal && (
+        <DecisionUpdateModal
+          decision={updateModal}
+          onClose={() => setUpdateModal(null)}
+        />
+      )}
     </div>
   )
 }

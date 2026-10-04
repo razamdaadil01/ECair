@@ -2,6 +2,9 @@
 // Strategic Indicators > Finance — 18 KPIs across 4 cadence groups:
 //   Daily (2) · Weekly (5) · Monthly (9) · Quarterly (3)
 
+import { useState } from 'react'
+import KPIUpdateModal from '../forms/KPIUpdateModal.jsx'
+
 // ── Color tokens ──────────────────────────────────────────────────────────────
 const C = {
   gold:        'var(--brand-gold)',
@@ -93,11 +96,19 @@ function CardWrap({ children, style }) {
   )
 }
 
-function CardHeader({ title, badge }) {
+function CardHeader({ title, badge, onEdit }) {
   return (
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
       <span style={{ fontSize: 12, fontWeight: 600, color: C.gold, lineHeight: 1.4 }}>{title}</span>
-      {badge && <CadenceBadge label={badge} />}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+        {badge && <CadenceBadge label={badge} />}
+        {onEdit && (
+          <button onClick={onEdit} title="Update value" style={{
+            background: 'none', border: `1px solid ${C.border}`, borderRadius: 4,
+            cursor: 'pointer', padding: '2px 6px', fontSize: 11, color: C.textSecondary, lineHeight: 1,
+          }}>✏️</button>
+        )}
+      </div>
     </div>
   )
 }
@@ -156,11 +167,14 @@ function CashBarChart() {
 }
 
 function CashPositionCard() {
+  const [value, setValue] = useState('$184,200')
+  const [modal, setModal] = useState(false)
+  const row = { indicator: 'Cash Position', value, source: 'Finance Dept. / Daily bank reconciliation' }
   return (
     <CardWrap style={{ flex: 1 }}>
-      <CardHeader title="Cash Position & 7-Day Forecast" badge="Daily" />
+      <CardHeader title="Cash Position & 7-Day Forecast" badge="Daily" onEdit={() => setModal(true)} />
       <div style={{ display: 'flex', alignItems: 'baseline', gap: 10 }}>
-        <span style={{ fontSize: 32, fontWeight: 700, color: C.textPrimary, lineHeight: 1 }}>$184,200</span>
+        <span style={{ fontSize: 32, fontWeight: 700, color: C.textPrimary, lineHeight: 1 }}>{value}</span>
       </div>
       <StatusLine color="red" text="Critical — Declining 3 consecutive days" />
       <CashBarChart />
@@ -171,6 +185,7 @@ function CashPositionCard() {
         Alert threshold: net movement negative 3 consecutive days
       </div>
       <SourceLine text="Finance Dept. / Daily bank reconciliation" />
+      {modal && <KPIUpdateModal row={row} rowIndex={0} onClose={() => setModal(false)} onSubmit={(_, v) => setValue(v)} period="Oct 4, 2026" />}
     </CardWrap>
   )
 }

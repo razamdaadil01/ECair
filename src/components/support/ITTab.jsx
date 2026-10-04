@@ -1,6 +1,8 @@
 // IT tab has custom Daily cards in addition to the shared table pattern
 
+import { useState } from 'react'
 import { C, SC, StatusDot, StatusLine, ExecutionProCard, KPITable, PageHeader, SectionHeader, CardWrap, CardHeader, CadenceBadge, SourceLine, ProgressBar } from './_shared.jsx'
+import DepartmentDataEntryModal from '../forms/DepartmentDataEntryModal.jsx'
 
 const EP = [
   { name: 'Backup System Implementation',          progress: 60, status: 'green' },
@@ -8,18 +10,24 @@ const EP = [
   { name: 'CCTV + Access Control Restoration',     progress: 10, status: 'blue'  },
 ]
 
-const WEEKLY = [
-  { indicator: 'Major IT Incidents (month)',        value: '3 incidents · avg 4.2h',       benchmark: 'Trend monitoring',         status: 'amber', source: 'IT incidents register' },
-  { indicator: 'Cybersecurity Incidents',           value: '1 unpatched critical vuln.',   benchmark: 'Alert from 1 critical',    status: 'red',   source: 'Cybersecurity register' },
-  { indicator: 'Internal User Satisfaction',       value: '72% satisfaction',             benchmark: 'Trend monitoring',         status: 'amber', source: 'User satisfaction survey' },
-  { indicator: 'Server Infrastructure Availability', value: '—',                          benchmark: '—',                        status: 'blue',  source: 'Project: Server Acquisition' },
-  { indicator: 'CCTV Coverage — Server Rooms',     value: '—',                            benchmark: '—',                        status: 'blue',  source: 'Project: CCTV Restoration' },
+const WEEKLY_INIT = [
+  { indicator: 'Major IT Incidents (month)',        value: '3 incidents · avg 4.2h',     benchmark: 'Trend monitoring',         status: 'amber', source: 'IT incidents register' },
+  { indicator: 'Cybersecurity Incidents',           value: '1 unpatched critical vuln.', benchmark: 'Alert from 1 critical',    status: 'red',   source: 'Cybersecurity register' },
+  { indicator: 'Internal User Satisfaction',       value: '72% satisfaction',           benchmark: 'Trend monitoring',         status: 'amber', source: 'User satisfaction survey' },
+  { indicator: 'Server Infrastructure Availability', value: '—',                        benchmark: '—',                        status: 'blue',  source: 'Project: Server Acquisition' },
+  { indicator: 'CCTV Coverage — Server Rooms',     value: '—',                          benchmark: '—',                        status: 'blue',  source: 'Project: CCTV Restoration' },
 ]
 
-const MONTHLY = [
-  { indicator: 'Backup Success Rate',               value: '—',   benchmark: '—',           status: 'blue',  source: 'Project: Backup System' },
+const MONTHLY_INIT = [
+  { indicator: 'Backup Success Rate',               value: '—',   benchmark: '—',               status: 'blue',  source: 'Project: Backup System' },
   { indicator: 'Staff Trained on IT/Cybersecurity', value: '48%', benchmark: 'Trend monitoring', status: 'amber', source: 'IS training register' },
 ]
+
+const BTN = {
+  fontSize: 10, fontWeight: 600, color: 'var(--brand-gold)',
+  backgroundColor: 'var(--gold-alpha-7)', border: '1px solid var(--gold-alpha-12)',
+  borderRadius: 5, padding: '3px 10px', cursor: 'pointer', whiteSpace: 'nowrap',
+}
 
 // ── Daily: Critical Systems + Network (custom cards) ─────────────────────────
 
@@ -76,6 +84,24 @@ function NetworkCard() {
 }
 
 export default function ITTab() {
+  const [weekly, setWeekly] = useState(WEEKLY_INIT)
+  const [monthly, setMonthly] = useState(MONTHLY_INIT)
+  const [weeklyModal, setWeeklyModal] = useState(false)
+  const [monthlyModal, setMonthlyModal] = useState(false)
+
+  function updateWeeklyRow(index, newValue) {
+    setWeekly(prev => prev.map((r, i) => i === index ? { ...r, value: newValue } : r))
+  }
+  function updateMonthlyRow(index, newValue) {
+    setMonthly(prev => prev.map((r, i) => i === index ? { ...r, value: newValue } : r))
+  }
+  function submitWeekly(updates) {
+    setWeekly(prev => { const next = [...prev]; updates.forEach(u => { next[u.index] = { ...next[u.index], value: u.value } }); return next })
+  }
+  function submitMonthly(updates) {
+    setMonthly(prev => { const next = [...prev]; updates.forEach(u => { next[u.index] = { ...next[u.index], value: u.value } }); return next })
+  }
+
   return (
     <div style={{ padding: '24px 28px', display: 'flex', flexDirection: 'column', gap: 32 }}>
       <PageHeader dept="IT" title="Support Functions — IT" subtitle="9 indicators · Daily to Monthly" />
@@ -87,8 +113,16 @@ export default function ITTab() {
           <NetworkCard />
         </div>
       </div>
-      <div><SectionHeader label="Weekly" /><KPITable rows={WEEKLY} /></div>
-      <div><SectionHeader label="Monthly" /><KPITable rows={MONTHLY} /></div>
+      <div>
+        <SectionHeader label="Weekly" action={<button style={BTN} onClick={() => setWeeklyModal(true)}>+ Enter Weekly Data</button>} />
+        <KPITable rows={weekly} onUpdateRow={updateWeeklyRow} />
+      </div>
+      <div>
+        <SectionHeader label="Monthly" action={<button style={BTN} onClick={() => setMonthlyModal(true)}>+ Enter Monthly Data</button>} />
+        <KPITable rows={monthly} onUpdateRow={updateMonthlyRow} />
+      </div>
+      {weeklyModal && <DepartmentDataEntryModal rows={weekly} onSubmit={submitWeekly} onClose={() => setWeeklyModal(false)} cadence="Weekly" dept="IT" />}
+      {monthlyModal && <DepartmentDataEntryModal rows={monthly} onSubmit={submitMonthly} onClose={() => setMonthlyModal(false)} cadence="Monthly" dept="IT" />}
     </div>
   )
 }

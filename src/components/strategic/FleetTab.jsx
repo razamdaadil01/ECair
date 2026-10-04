@@ -1,6 +1,9 @@
 // ─── Fleet Tab ────────────────────────────────────────────────────────────────
 // Strategic Indicators > Fleet — 4 KPIs: Daily (1) · Weekly (2) · Quarterly (1)
 
+import { useState } from 'react'
+import KPIUpdateModal from '../forms/KPIUpdateModal.jsx'
+
 const C = {
   gold: 'var(--brand-gold)', bg: 'var(--bg-primary)', bgCard: 'var(--bg-card)', bgSecondary: 'var(--bg-secondary)',
   border: 'var(--border-subtle)', textPrimary: 'var(--text-primary)', textSecondary: 'var(--text-secondary)',
@@ -42,11 +45,19 @@ function CardWrap({ children, style }) {
     </div>
   )
 }
-function CardHeader({ title, badge }) {
+function CardHeader({ title, badge, onEdit }) {
   return (
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
       <span style={{ fontSize: 12, fontWeight: 600, color: C.gold, lineHeight: 1.4 }}>{title}</span>
-      {badge && <CadenceBadge label={badge} />}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+        {badge && <CadenceBadge label={badge} />}
+        {onEdit && (
+          <button onClick={onEdit} title="Update value" style={{
+            background: 'none', border: `1px solid ${C.border}`, borderRadius: 4,
+            cursor: 'pointer', padding: '2px 6px', fontSize: 11, color: C.textSecondary, lineHeight: 1,
+          }}>✏️</button>
+        )}
+      </div>
     </div>
   )
 }
@@ -112,10 +123,13 @@ function FleetStatusCard() {
 // ── Weekly: Technical Reliability + Utilisation ───────────────────────────────
 
 function TechReliabilityCard() {
+  const [value, setValue] = useState('97.2%')
+  const [modal, setModal] = useState(false)
+  const row = { indicator: 'Technical Reliability — 7 Days', value, source: 'Maintenance / MRO' }
   return (
     <CardWrap style={{ flex: 1 }}>
-      <CardHeader title="Technical Reliability — 7 Days" badge="Weekly" />
-      <div style={{ fontSize: 32, fontWeight: 700, color: C.green, lineHeight: 1 }}>97.2%</div>
+      <CardHeader title="Technical Reliability — 7 Days" badge="Weekly" onEdit={() => setModal(true)} />
+      <div style={{ fontSize: 32, fontWeight: 700, color: C.green, lineHeight: 1 }}>{value}</div>
       <div style={{ fontSize: 11, color: C.textSecondary, fontStyle: 'italic' }}>
         1 − (delayed/cancelled for tech reasons ÷ total departures)
       </div>
@@ -123,23 +137,28 @@ function TechReliabilityCard() {
       <StatusLine color="green" text="On Track" />
       <div style={{ fontSize: 11, color: C.textSecondary }}>Benchmark: Warning &lt; 95% · Critical &lt; 90%</div>
       <SourceLine text="Maintenance / MRO" />
+      {modal && <KPIUpdateModal row={row} rowIndex={0} onClose={() => setModal(false)} onSubmit={(_, v) => setValue(v)} period="Week 41 / 2026" />}
     </CardWrap>
   )
 }
 
 function UtilisationCard() {
+  const [value, setValue] = useState('6.8')
+  const [modal, setModal] = useState(false)
+  const row = { indicator: 'Fleet Utilisation Rate', value, source: 'MCC / Network Planning' }
   return (
     <CardWrap style={{ flex: 1 }}>
-      <CardHeader title="Fleet Utilisation Rate" badge="Weekly" />
+      <CardHeader title="Fleet Utilisation Rate" badge="Weekly" onEdit={() => setModal(true)} />
       <div style={{ fontSize: 11, color: C.textSecondary }}>Flight hours / aircraft / day</div>
       <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
-        <span style={{ fontSize: 28, fontWeight: 700, color: C.blue, lineHeight: 1 }}>6.8</span>
+        <span style={{ fontSize: 28, fontWeight: 700, color: C.blue, lineHeight: 1 }}>{value}</span>
         <span style={{ fontSize: 13, color: C.textSecondary }}>hrs / aircraft / day</span>
       </div>
       <StatusLine color="blue" text="Trend monitoring — target to be defined with MCC" />
       <div style={{ fontSize: 11, color: C.amber, fontStyle: 'italic' }}>An aircraft on the ground generates no revenue.</div>
       <div style={{ fontSize: 11, color: C.textSecondary }}>Benchmark: Qualitative monitoring — target to be defined with MCC</div>
       <SourceLine text="MCC / Network Planning" />
+      {modal && <KPIUpdateModal row={row} rowIndex={0} onClose={() => setModal(false)} onSubmit={(_, v) => setValue(v)} period="Week 41 / 2026" />}
     </CardWrap>
   )
 }

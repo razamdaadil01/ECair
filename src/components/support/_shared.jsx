@@ -1,6 +1,9 @@
 // ─── Support Functions — shared primitives ────────────────────────────────────
 // Imported by every Support Function department tab.
 
+import { useState } from 'react'
+import KPIUpdateModal from '../forms/KPIUpdateModal.jsx'
+
 export const C = {
   gold: 'var(--brand-gold)', bg: 'var(--bg-primary)', bgCard: 'var(--bg-card)', bgSecondary: 'var(--bg-secondary)',
   border: 'var(--border-subtle)', textPrimary: 'var(--text-primary)', textSecondary: 'var(--text-secondary)',
@@ -36,11 +39,12 @@ export function SourceLine({ text }) {
   return <div style={{ fontSize: 11, color: C.textSecondary, marginTop: 'auto', paddingTop: 10 }}>Source: {text}</div>
 }
 
-export function SectionHeader({ label }) {
+export function SectionHeader({ label, action }) {
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginBottom: 18 }}>
       <span style={{ fontSize: 10, fontWeight: 700, color: C.textSecondary, letterSpacing: '0.18em', textTransform: 'uppercase', whiteSpace: 'nowrap' }}>{label}</span>
       <div style={{ flex: 1, height: 1, backgroundColor: C.border }} />
+      {action && action}
     </div>
   )
 }
@@ -72,54 +76,82 @@ export function ProgressBar({ pct, color }) {
 
 // ── KPI Table ─────────────────────────────────────────────────────────────────
 
-const STATUS_LABEL = { green: 'On Track', amber: 'Warning', red: 'Alert', blue: 'Info' }
+export function KPITable({ rows, onUpdateRow }) {
+  const [editingRow, setEditingRow] = useState(null)
 
-export function KPITable({ rows }) {
   return (
-    <div style={{ backgroundColor: C.bgCard, border: `1px solid ${C.border}`, borderRadius: 8, overflow: 'hidden' }}>
-      <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
-        <thead>
-          <tr style={{ borderBottom: `1px solid ${C.gold}` }}>
-            {['Indicator', 'Value', 'Benchmark', '', 'Source'].map((h, i) => (
-              <th key={i} style={{ padding: '10px 14px', textAlign: 'left', fontSize: 10, fontWeight: 600, color: C.textSecondary, letterSpacing: '0.06em', whiteSpace: 'nowrap', width: ['23%','22%','28%','5%','22%'][i] }}>{h}</th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {rows.map((row, i) => {
-            const upcoming = row.value === '—'
-            const rowBg = i % 2 === 0 ? C.bgSecondary : C.bgCard
-            return (
-              <tr key={row.indicator + i} style={{ backgroundColor: rowBg, opacity: upcoming ? 0.7 : 1 }}>
-                <td style={{ padding: '11px 14px', borderBottom: `1px solid ${C.border}`, verticalAlign: 'top' }}>
-                  <span style={{ color: C.textPrimary, fontWeight: 500 }}>{row.indicator}</span>
-                  {upcoming && (
-                    <div style={{ fontSize: 10, color: C.blue, fontStyle: 'italic', marginTop: 3 }}>
-                      Activates on: {row.source.replace('Project: ', '')}
-                    </div>
+    <>
+      <div style={{ backgroundColor: C.bgCard, border: `1px solid ${C.border}`, borderRadius: 8, overflow: 'hidden' }}>
+        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: 12 }}>
+          <thead>
+            <tr style={{ borderBottom: `1px solid ${C.gold}` }}>
+              {['Indicator', 'Value', 'Benchmark', '', 'Source', ...(onUpdateRow ? [''] : [])].map((h, i) => (
+                <th key={i} style={{ padding: '10px 14px', textAlign: 'left', fontSize: 10, fontWeight: 600, color: C.textSecondary, letterSpacing: '0.06em', whiteSpace: 'nowrap' }}>{h}</th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((row, i) => {
+              const upcoming = row.value === '—'
+              const rowBg = i % 2 === 0 ? C.bgSecondary : C.bgCard
+              return (
+                <tr key={row.indicator + i} style={{ backgroundColor: rowBg, opacity: upcoming ? 0.7 : 1 }}>
+                  <td style={{ padding: '11px 14px', borderBottom: `1px solid ${C.border}`, verticalAlign: 'top' }}>
+                    <span style={{ color: C.textPrimary, fontWeight: 500 }}>{row.indicator}</span>
+                    {upcoming && (
+                      <div style={{ fontSize: 10, color: C.blue, fontStyle: 'italic', marginTop: 3 }}>
+                        Activates on: {row.source.replace('Project: ', '')}
+                      </div>
+                    )}
+                  </td>
+                  <td style={{ padding: '11px 14px', color: C.textPrimary, fontWeight: 600, borderBottom: `1px solid ${C.border}`, verticalAlign: 'top' }}>
+                    {upcoming
+                      ? <span style={{ fontSize: 10, color: C.blue, backgroundColor: 'var(--blue-alpha-12)', padding: '2px 7px', borderRadius: 4, fontWeight: 600 }}>Upcoming</span>
+                      : row.value
+                    }
+                  </td>
+                  <td style={{ padding: '11px 14px', color: C.textSecondary, borderBottom: `1px solid ${C.border}`, verticalAlign: 'top', lineHeight: 1.5 }}>
+                    {upcoming ? '—' : row.benchmark}
+                  </td>
+                  <td style={{ padding: '11px 14px', textAlign: 'center', borderBottom: `1px solid ${C.border}`, verticalAlign: 'middle' }}>
+                    <StatusDot color={row.status} size={10} />
+                  </td>
+                  <td style={{ padding: '11px 14px', color: C.textSecondary, fontSize: 11, borderBottom: `1px solid ${C.border}`, verticalAlign: 'top' }}>
+                    {row.source}
+                  </td>
+                  {onUpdateRow && (
+                    <td style={{ padding: '8px 10px', borderBottom: `1px solid ${C.border}`, verticalAlign: 'middle', textAlign: 'center' }}>
+                      {!upcoming && (
+                        <button
+                          onClick={() => setEditingRow(i)}
+                          title="Update value"
+                          style={{
+                            background: 'none', border: `1px solid ${C.border}`, borderRadius: 4,
+                            cursor: 'pointer', padding: '3px 7px', fontSize: 12, color: C.textSecondary,
+                            lineHeight: 1,
+                          }}
+                        >✏️</button>
+                      )}
+                    </td>
                   )}
-                </td>
-                <td style={{ padding: '11px 14px', color: C.textPrimary, fontWeight: 600, borderBottom: `1px solid ${C.border}`, verticalAlign: 'top' }}>
-                  {upcoming
-                    ? <span style={{ fontSize: 10, color: C.blue, backgroundColor: 'var(--blue-alpha-12)', padding: '2px 7px', borderRadius: 4, fontWeight: 600 }}>Upcoming</span>
-                    : row.value
-                  }
-                </td>
-                <td style={{ padding: '11px 14px', color: C.textSecondary, borderBottom: `1px solid ${C.border}`, verticalAlign: 'top', lineHeight: 1.5 }}>
-                  {upcoming ? '—' : row.benchmark}
-                </td>
-                <td style={{ padding: '11px 14px', textAlign: 'center', borderBottom: `1px solid ${C.border}`, verticalAlign: 'middle' }}>
-                  <StatusDot color={row.status} size={10} />
-                </td>
-                <td style={{ padding: '11px 14px', color: C.textSecondary, fontSize: 11, borderBottom: `1px solid ${C.border}`, verticalAlign: 'top' }}>
-                  {row.source}
-                </td>
-              </tr>
-            )
-          })}
-        </tbody>
-      </table>
-    </div>
+                </tr>
+              )
+            })}
+          </tbody>
+        </table>
+      </div>
+      {editingRow !== null && (
+        <KPIUpdateModal
+          row={rows[editingRow]}
+          rowIndex={editingRow}
+          onClose={() => setEditingRow(null)}
+          onSubmit={(idx, newValue) => {
+            onUpdateRow(idx, newValue)
+            setEditingRow(null)
+          }}
+        />
+      )}
+    </>
   )
 }
 

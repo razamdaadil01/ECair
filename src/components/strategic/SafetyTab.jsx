@@ -2,6 +2,9 @@
 // Strategic Indicators > Safety — 5 KPIs: Daily (1) · Weekly (1) · Monthly (2) · Quarterly (1)
 // Design note: section headers use amber instead of text-secondary — safety is never routine.
 
+import { useState } from 'react'
+import KPIUpdateModal from '../forms/KPIUpdateModal.jsx'
+
 const C = {
   gold: 'var(--brand-gold)', bg: 'var(--bg-primary)', bgCard: 'var(--bg-card)', bgSecondary: 'var(--bg-secondary)',
   border: 'var(--border-subtle)', textPrimary: 'var(--text-primary)', textSecondary: 'var(--text-secondary)',
@@ -44,11 +47,19 @@ function CardWrap({ children, style }) {
     </div>
   )
 }
-function CardHeader({ title, badge }) {
+function CardHeader({ title, badge, onEdit }) {
   return (
     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: 8 }}>
       <span style={{ fontSize: 12, fontWeight: 600, color: C.gold, lineHeight: 1.4 }}>{title}</span>
-      {badge && <CadenceBadge label={badge} />}
+      <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+        {badge && <CadenceBadge label={badge} />}
+        {onEdit && (
+          <button onClick={onEdit} title="Update value" style={{
+            background: 'none', border: `1px solid ${C.border}`, borderRadius: 4,
+            cursor: 'pointer', padding: '2px 6px', fontSize: 11, color: C.textSecondary, lineHeight: 1,
+          }}>✏️</button>
+        )}
+      </div>
     </div>
   )
 }
@@ -56,14 +67,18 @@ function CardHeader({ title, badge }) {
 // ── Daily: Today's incidents ──────────────────────────────────────────────────
 
 function IncidentsTodayCard() {
+  const [value, setValue] = useState('0')
+  const [modal, setModal] = useState(false)
+  const count = parseInt(value, 10) || 0
+  const row = { indicator: 'Safety Incidents — Today', value, source: 'SMS / SGS register' }
   return (
     <CardWrap>
-      <CardHeader title="Safety Incidents — Today" badge="Daily" />
+      <CardHeader title="Safety Incidents — Today" badge="Daily" onEdit={() => setModal(true)} />
       <div style={{ display: 'flex', alignItems: 'flex-end', gap: 16 }}>
-        <span style={{ fontSize: 64, fontWeight: 700, color: C.green, lineHeight: 1 }}>0</span>
-        <span style={{ fontSize: 14, color: C.textSecondary, paddingBottom: 8 }}>No events reported today</span>
+        <span style={{ fontSize: 64, fontWeight: 700, color: count === 0 ? C.green : C.red, lineHeight: 1 }}>{value}</span>
+        <span style={{ fontSize: 14, color: C.textSecondary, paddingBottom: 8 }}>{count === 0 ? 'No events reported today' : `${count} incident${count > 1 ? 's' : ''} reported today`}</span>
       </div>
-      <StatusLine color="green" text="On Track" />
+      <StatusLine color={count === 0 ? 'green' : 'red'} text={count === 0 ? 'On Track' : 'Alert: Safety incident reported'} />
       <div style={{ padding: '12px 14px', backgroundColor: C.bgSecondary, borderRadius: 6, border: `1px solid ${C.border}` }}>
         <div style={{ fontSize: 11, color: C.textSecondary, marginBottom: 4, fontWeight: 600, letterSpacing: '0.06em' }}>LAST INCIDENT</div>
         <div style={{ fontSize: 12, color: C.textPrimary }}>September 28, 2026 — Bird strike on landing (BZV)</div>
@@ -74,6 +89,7 @@ function IncidentsTodayCard() {
         Any incident triggers immediate CEO notification regardless of category.
       </div>
       <SourceLine text="SMS / SGS register" />
+      {modal && <KPIUpdateModal row={row} rowIndex={0} onClose={() => setModal(false)} onSubmit={(_, v) => setValue(v)} period="Oct 4, 2026" />}
     </CardWrap>
   )
 }
