@@ -96,9 +96,10 @@ export default function App() {
 
         {/* Scrollable main content */}
         <main
-          className="flex-1 overflow-y-auto"
+          className="flex-1 min-h-0 overflow-y-auto"
           style={{
             paddingTop: HEADER_H + ALERT_H,
+            paddingBottom: 32,
             backgroundColor: '#070D1A',
           }}
         >
