@@ -68,12 +68,12 @@ export default function App() {
   return (
     <div
       className="flex h-screen overflow-hidden"
-      style={{ fontFamily: "'DM Sans', sans-serif", backgroundColor: '#070D1A' }}
+      style={{ fontFamily: "'DM Sans', sans-serif", backgroundColor: 'var(--bg-primary)' }}
     >
       {/* ── Fixed Left Sidebar ─────────────────────────────────────────────── */}
       <div
         className="fixed top-0 left-0 bottom-0 flex flex-col z-30"
-        style={{ width: SIDEBAR_W, backgroundColor: '#0D1626', borderRight: '1px solid #1A2B45' }}
+        style={{ width: SIDEBAR_W, backgroundColor: 'var(--bg-secondary)', borderRight: '1px solid var(--border-subtle)' }}
       >
         <Sidebar activeTab={activeTab} onNavigate={setActiveTab} />
       </div>
@@ -89,8 +89,8 @@ export default function App() {
           style={{
             left: SIDEBAR_W,
             height: HEADER_H,
-            backgroundColor: '#0D1626',
-            borderBottom: '1px solid #1A2B45',
+            backgroundColor: 'var(--bg-secondary)',
+            borderBottom: '1px solid var(--border-subtle)',
           }}
         >
           <Header />
@@ -103,8 +103,8 @@ export default function App() {
             left: SIDEBAR_W,
             top: HEADER_H,
             height: ALERT_H,
-            backgroundColor: '#0D1626',
-            borderBottom: '1px solid #1A2B45',
+            backgroundColor: 'var(--bg-secondary)',
+            borderBottom: '1px solid var(--border-subtle)',
           }}
         >
           <AlertStrip />
@@ -116,7 +116,7 @@ export default function App() {
           style={{
             paddingTop: HEADER_H + ALERT_H,
             paddingBottom: 32,
-            backgroundColor: '#070D1A',
+            backgroundColor: 'var(--bg-primary)',
           }}
         >
           {activeTab === 'overview'    ? <Overview />      :

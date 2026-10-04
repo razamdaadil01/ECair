@@ -21,7 +21,7 @@ export default function Placeholder({ tab }) {
   return (
     <div
       className="flex flex-col items-center justify-center"
-      style={{ minHeight: '100%', padding: '60px 40px', color: '#7A92B0' }}
+      style={{ minHeight: '100%', padding: '60px 40px', color: 'var(--text-secondary)' }}
     >
       {/* Gold icon placeholder */}
       <div
@@ -29,8 +29,8 @@ export default function Placeholder({ tab }) {
           width: 56,
           height: 56,
           borderRadius: 12,
-          backgroundColor: 'rgba(201,168,76,0.1)',
-          border: '1px solid rgba(201,168,76,0.25)',
+          backgroundColor: 'var(--gold-alpha-12)',
+          border: '1px solid var(--gold-alpha-12)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
@@ -38,18 +38,18 @@ export default function Placeholder({ tab }) {
         }}
       >
         <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-          <rect x="3" y="3" width="7" height="7" rx="1" stroke="#C9A84C" strokeWidth="1.5" />
-          <rect x="14" y="3" width="7" height="7" rx="1" stroke="#C9A84C" strokeWidth="1.5" />
-          <rect x="3" y="14" width="7" height="7" rx="1" stroke="#C9A84C" strokeWidth="1.5" />
-          <rect x="14" y="14" width="7" height="7" rx="1" stroke="#C9A84C" strokeWidth="1.5" />
+          <rect x="3" y="3" width="7" height="7" rx="1" stroke="var(--brand-gold)" strokeWidth="1.5" />
+          <rect x="14" y="3" width="7" height="7" rx="1" stroke="var(--brand-gold)" strokeWidth="1.5" />
+          <rect x="3" y="14" width="7" height="7" rx="1" stroke="var(--brand-gold)" strokeWidth="1.5" />
+          <rect x="14" y="14" width="7" height="7" rx="1" stroke="var(--brand-gold)" strokeWidth="1.5" />
         </svg>
       </div>
 
-      <h3 style={{ color: '#C9A84C', fontSize: 16, fontWeight: 600, margin: '0 0 8px' }}>
+      <h3 style={{ color: 'var(--brand-gold)', fontSize: 16, fontWeight: 600, margin: '0 0 8px' }}>
         {label}
       </h3>
 
-      <p style={{ fontSize: 13, color: '#7A92B0', margin: 0, textAlign: 'center', maxWidth: 320 }}>
+      <p style={{ fontSize: 13, color: 'var(--text-secondary)', margin: 0, textAlign: 'center', maxWidth: 320 }}>
         This section is coming in Phase 2.
       </p>
     </div>

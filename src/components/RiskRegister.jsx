@@ -1,9 +1,9 @@
 // ─── Risk Register ────────────────────────────────────────────────────────────
 
 const C = {
-  gold: '#C9A84C', bg: '#070D1A', bgCard: '#111E33', bgSecondary: '#0D1626',
-  border: '#1A2B45', textPrimary: '#F0F4F8', textSecondary: '#7A92B0',
-  green: '#22C55E', amber: '#F59E0B', red: '#EF4444', blue: '#3B82F6',
+  gold: 'var(--brand-gold)', bg: 'var(--bg-primary)', bgCard: 'var(--bg-card)', bgSecondary: 'var(--bg-secondary)',
+  border: 'var(--border-subtle)', textPrimary: 'var(--text-primary)', textSecondary: 'var(--text-secondary)',
+  green: 'var(--status-green)', amber: 'var(--status-amber)', red: 'var(--status-red)', blue: 'var(--status-blue)',
   orange: '#F97316',
 }
 
@@ -16,6 +16,8 @@ const RISKS = [
   { id: 'R6', name: 'IT / Data Breach',          category: 'IT',        prob: 2, impact: 2, owner: 'CIO',  status: 'Mitigated', inDecision: false },
 ]
 
+const SCORE_HEX = { red: '#EF4444', orange: '#F97316', amber: '#F59E0B', green: '#22C55E' }
+
 function scoreColor(s) {
   if (s >= 15) return C.red
   if (s >= 10) return C.orange
@@ -23,9 +25,15 @@ function scoreColor(s) {
   return C.green
 }
 
+function scoreHex(s) {
+  if (s >= 15) return SCORE_HEX.red
+  if (s >= 10) return SCORE_HEX.orange
+  if (s >= 5)  return SCORE_HEX.amber
+  return SCORE_HEX.green
+}
+
 function cellBg(prob, impact) {
-  const c = scoreColor(prob * impact)
-  return `${c}22`
+  return `${scoreHex(prob * impact)}22`
 }
 
 function Heatmap() {
@@ -78,7 +86,7 @@ function Heatmap() {
                       <div style={{ display: 'flex', gap: 3, flexWrap: 'wrap', justifyContent: 'center' }}>
                         {riskIds.map(id => (
                           <span key={id} style={{
-                            fontSize: 9, fontWeight: 700, color: '#070D1A',
+                            fontSize: 9, fontWeight: 700, color: '#111827',
                             backgroundColor: scoreColor(score),
                             padding: '1px 4px', borderRadius: 3,
                           }}>{id}</span>
@@ -151,7 +159,7 @@ function RiskTable() {
                 <td style={{ padding: '11px 14px', borderBottom: `1px solid ${C.border}`, color: C.textPrimary, fontWeight: 600, textAlign: 'center' }}>{r.prob}</td>
                 <td style={{ padding: '11px 14px', borderBottom: `1px solid ${C.border}`, color: C.textPrimary, fontWeight: 600, textAlign: 'center' }}>{r.impact}</td>
                 <td style={{ padding: '11px 14px', borderBottom: `1px solid ${C.border}`, textAlign: 'center' }}>
-                  <span style={{ fontSize: 11, fontWeight: 700, color: '#070D1A', backgroundColor: sc, padding: '2px 8px', borderRadius: 4 }}>{score}</span>
+                  <span style={{ fontSize: 11, fontWeight: 700, color: '#111827', backgroundColor: sc, padding: '2px 8px', borderRadius: 4 }}>{score}</span>
                 </td>
                 <td style={{ padding: '11px 14px', borderBottom: `1px solid ${C.border}`, color: C.textSecondary, fontSize: 11 }}>{r.owner}</td>
                 <td style={{ padding: '11px 14px', borderBottom: `1px solid ${C.border}` }}>
@@ -192,8 +200,8 @@ export default function RiskRegister() {
 
       {/* Info box */}
       <div style={{
-        backgroundColor: 'rgba(245,158,11,0.07)',
-        border: `1px solid rgba(245,158,11,0.3)`,
+        backgroundColor: 'var(--amber-alpha-7)',
+        border: `1px solid var(--amber-border-dim)`,
         borderLeft: `4px solid ${C.amber}`,
         borderRadius: 8, padding: '14px 18px',
         display: 'flex', alignItems: 'flex-start', gap: 10,

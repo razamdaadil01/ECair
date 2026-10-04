@@ -7,23 +7,25 @@
 
 // ── Color constants ───────────────────────────────────────────────────────────
 const C = {
-  gold:      '#C9A84C',
-  goldLight: '#E8C97A',
-  bg:        '#070D1A',
-  bgCard:    '#111E33',
-  bgSecondary: '#0D1626',
-  border:    '#1A2B45',
-  textPrimary:   '#F0F4F8',
-  textSecondary: '#7A92B0',
-  green: '#22C55E',
-  amber: '#F59E0B',
-  red:   '#EF4444',
-  blue:  '#3B82F6',
+  gold:      'var(--brand-gold)',
+  goldLight: 'var(--brand-gold-light)',
+  bg:        'var(--bg-primary)',
+  bgCard:    'var(--bg-card)',
+  bgSecondary: 'var(--bg-secondary)',
+  border:    'var(--border-subtle)',
+  textPrimary:   'var(--text-primary)',
+  textSecondary: 'var(--text-secondary)',
+  green: 'var(--status-green)',
+  amber: 'var(--status-amber)',
+  red:   'var(--status-red)',
+  blue:  'var(--status-blue)',
 }
 
 const STATUS_COLOR = { green: C.green, amber: C.amber, red: C.red, blue: C.blue }
 
 // ── Shared primitives ─────────────────────────────────────────────────────────
+
+const STATUS_GLOW = { green: 'rgba(34,197,94,0.4)', amber: 'rgba(245,158,11,0.4)', red: 'rgba(239,68,68,0.4)', blue: 'rgba(59,130,246,0.4)' }
 
 function StatusDot({ color, size = 8 }) {
   return (
@@ -34,7 +36,7 @@ function StatusDot({ color, size = 8 }) {
         borderRadius: '50%',
         backgroundColor: STATUS_COLOR[color] || color,
         flexShrink: 0,
-        boxShadow: `0 0 5px ${STATUS_COLOR[color] || color}66`,
+        boxShadow: `0 0 5px ${STATUS_GLOW[color] || 'transparent'}`,
       }}
     />
   )
@@ -213,15 +215,15 @@ const ALERTS = [
 ]
 
 const DOMAIN_COLORS = {
-  Finance:    { bg: 'rgba(59,130,246,0.12)', text: C.blue },
-  Commercial: { bg: 'rgba(201,168,76,0.12)', text: C.gold },
-  Safety:     { bg: 'rgba(34,197,94,0.12)',  text: C.green },
-  Fleet:      { bg: 'rgba(245,158,11,0.12)', text: C.amber },
-  Operations: { bg: 'rgba(34,197,94,0.12)',  text: C.green },
+  Finance:    { bg: 'var(--blue-alpha-12)',  text: C.blue },
+  Commercial: { bg: 'var(--gold-alpha-12)',  text: C.gold },
+  Safety:     { bg: 'var(--green-alpha-12)', text: C.green },
+  Fleet:      { bg: 'var(--amber-alpha-12)', text: C.amber },
+  Operations: { bg: 'var(--green-alpha-12)', text: C.green },
 }
 
 function DomainPill({ domain }) {
-  const style = DOMAIN_COLORS[domain] || { bg: 'rgba(255,255,255,0.06)', text: C.textSecondary }
+  const style = DOMAIN_COLORS[domain] || { bg: 'var(--surface-subtle)', text: C.textSecondary }
   return (
     <span
       style={{
@@ -345,9 +347,7 @@ function DecisionsSection() {
                   fontWeight: 600,
                   padding: '2px 7px',
                   borderRadius: 4,
-                  backgroundColor: d.status === 'Scheduled'
-                    ? 'rgba(59,130,246,0.12)'
-                    : 'rgba(245,158,11,0.12)',
+                  backgroundColor: d.status === 'Scheduled' ? 'var(--blue-alpha-12)' : 'var(--amber-alpha-12)',
                   color: d.status === 'Scheduled' ? C.blue : C.amber,
                 }}
               >

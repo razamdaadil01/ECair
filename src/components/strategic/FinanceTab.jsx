@@ -4,19 +4,20 @@
 
 // ── Color tokens ──────────────────────────────────────────────────────────────
 const C = {
-  gold:        '#C9A84C',
-  bg:          '#070D1A',
-  bgCard:      '#111E33',
-  bgSecondary: '#0D1626',
-  border:      '#1A2B45',
-  textPrimary:   '#F0F4F8',
-  textSecondary: '#7A92B0',
-  green: '#22C55E',
-  amber: '#F59E0B',
-  red:   '#EF4444',
-  blue:  '#3B82F6',
+  gold:        'var(--brand-gold)',
+  bg:          'var(--bg-primary)',
+  bgCard:      'var(--bg-card)',
+  bgSecondary: 'var(--bg-secondary)',
+  border:      'var(--border-subtle)',
+  textPrimary:   'var(--text-primary)',
+  textSecondary: 'var(--text-secondary)',
+  green: 'var(--status-green)',
+  amber: 'var(--status-amber)',
+  red:   'var(--status-red)',
+  blue:  'var(--status-blue)',
 }
 const STATUS_COLOR = { green: C.green, amber: C.amber, red: C.red, blue: C.blue }
+const GLOW = { green: 'rgba(34,197,94,0.33)', amber: 'rgba(245,158,11,0.33)', red: 'rgba(239,68,68,0.33)', blue: 'rgba(59,130,246,0.33)' }
 
 // ── Shared primitives ─────────────────────────────────────────────────────────
 
@@ -26,7 +27,7 @@ function StatusDot({ color, size = 8 }) {
     <span style={{
       display: 'inline-block', flexShrink: 0,
       width: size, height: size, borderRadius: '50%',
-      backgroundColor: bg, boxShadow: `0 0 5px ${bg}55`,
+      backgroundColor: bg, boxShadow: `0 0 5px ${GLOW[color] || 'transparent'}`,
     }} />
   )
 }
@@ -44,7 +45,7 @@ function CadenceBadge({ label }) {
   return (
     <span style={{
       fontSize: 10, color: C.textSecondary, fontWeight: 500,
-      backgroundColor: 'rgba(255,255,255,0.05)',
+      backgroundColor: 'var(--surface-subtle)',
       border: `1px solid ${C.border}`,
       padding: '2px 7px', borderRadius: 4,
     }}>
@@ -143,7 +144,8 @@ function CashBarChart() {
         {CASH_BARS.map(d => (
           <div key={d.day} style={{
             flex: 1, textAlign: 'center',
-            fontSize: 9, color: d.projected ? C.textSecondary + '99' : C.textSecondary,
+            fontSize: 9, color: C.textSecondary,
+            opacity: d.projected ? 0.5 : 1,
           }}>
             {d.day}
           </div>
