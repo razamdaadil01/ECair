@@ -124,7 +124,7 @@ function OTPTodayCard() {
       </div>
       <div style={{ fontSize: 11, color: C.textSecondary }}>Benchmark: Warning if &lt; 80%</div>
       <SourceLine text="Flight Operations Control" />
-      {modal && <KPIUpdateModal row={row} rowIndex={0} onClose={() => setModal(false)} onSubmit={(_, v) => setValue(v)} period="Oct 4, 2026" />}
+      {modal && <KPIUpdateModal row={row} rowIndex={0} onClose={() => setModal(false)} onSubmit={(_, v) => setValue(v)} period="Daily" />}
     </CardWrap>
   )
 }

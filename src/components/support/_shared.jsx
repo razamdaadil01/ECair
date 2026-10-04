@@ -76,7 +76,7 @@ export function ProgressBar({ pct, color }) {
 
 // ── KPI Table ─────────────────────────────────────────────────────────────────
 
-export function KPITable({ rows, onUpdateRow }) {
+export function KPITable({ rows, onUpdateRow, period }) {
   const [editingRow, setEditingRow] = useState(null)
 
   return (
@@ -149,6 +149,7 @@ export function KPITable({ rows, onUpdateRow }) {
             onUpdateRow(idx, newValue)
             setEditingRow(null)
           }}
+          period={period}
         />
       )}
     </>
