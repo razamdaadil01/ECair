@@ -6,6 +6,7 @@ import Header from './components/Header.jsx'
 import Sidebar from './components/Sidebar.jsx'
 import AlertStrip from './components/AlertStrip.jsx'
 import Overview from './components/Overview.jsx'
+import FinanceTab from './components/strategic/FinanceTab.jsx'
 import Placeholder from './components/Placeholder.jsx'
 
 // Navigation structure — tabs rendered in Sidebar
@@ -105,6 +106,8 @@ export default function App() {
         >
           {activeTab === 'overview' ? (
             <Overview />
+          ) : activeTab === 'finance' ? (
+            <FinanceTab />
           ) : (
             <Placeholder tab={activeTab} />
           )}
