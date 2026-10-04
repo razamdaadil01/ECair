@@ -58,11 +58,11 @@ Each card creates a `row` object passed directly to `KPIUpdateModal`. The modal 
 | 2 | `ComplaintsCard` | ✅ "Passenger Complaints" | ✅ live state via `useState` | ✅ "Customer Relations" | ✅ "Week 41 / 2026" |
 | 3 | `YieldCard` | ✅ "Yield — Net Revenue per Passenger" | ✅ live state via `useState` | ✅ "Finance / Revenue Management" | ✅ "October 2026" |
 | 4 | `SatisfactionCard` | ✅ "Customer Satisfaction — NPS / CSAT" | ✅ live state via `useState` | ✅ "Customer Relations / Survey" | ✅ "Q3 2026" |
-| 5 | `CashPositionCard` | ✅ "Cash Position & 7-Day Forecast" | ✅ live state via `useState` | ✅ "Finance Dept. / Daily bank reconciliation" | ⚠️ "Oct 4, 2026" (see Bug #2) |
-| 6 | `OTPTodayCard` | ✅ "On-Time Performance — Today" | ✅ live state via `useState` | ✅ "Flight Operations Control" | ⚠️ "Oct 4, 2026" (see Bug #2) |
+| 5 | `CashPositionCard` | ✅ "Cash Position & 7-Day Forecast" | ✅ live state via `useState` | ✅ "Finance Dept. / Daily bank reconciliation" | ✅ "Daily" *(fixed)* |
+| 6 | `OTPTodayCard` | ✅ "On-Time Performance — Today" | ✅ live state via `useState` | ✅ "Flight Operations Control" | ✅ "Daily" *(fixed)* |
 | 7 | `TechReliabilityCard` | ✅ "Technical Reliability — 7 Days" | ✅ live state via `useState` | ✅ "Maintenance / MRO" | ✅ "Week 41 / 2026" |
 | 8 | `UtilisationCard` | ✅ "Fleet Utilisation Rate" | ✅ live state via `useState` | ✅ "MCC / Network Planning" | ✅ "Week 41 / 2026" |
-| 9 | `IncidentsTodayCard` | ✅ "Safety Incidents — Today" | ✅ live state via `useState` | ✅ "SMS / SGS register" | ⚠️ "Oct 4, 2026" (see Bug #2) |
+| 9 | `IncidentsTodayCard` | ✅ "Safety Incidents — Today" | ✅ live state via `useState` | ✅ "SMS / SGS register" | ✅ "Daily" *(fixed)* |
 
 ---
 
@@ -98,46 +98,21 @@ All strategic tab callers and all `_shared.jsx` KPITable row objects supply thes
 
 ## 4. Bugs Found
 
-### Bug #1 — CRITICAL: `_shared.jsx` KPITable never passes `period` to KPIUpdateModal
+### Bug #1 — ~~CRITICAL~~ **FIXED** (Oct 04, 2026): `_shared.jsx` KPITable never passes `period` to KPIUpdateModal
 
 **Location:** `src/components/support/_shared.jsx:143–152`
 
-**Code (current):**
-```jsx
-{editingRow !== null && (
-  <KPIUpdateModal
-    row={rows[editingRow]}
-    rowIndex={editingRow}
-    onClose={() => setEditingRow(null)}
-    onSubmit={(idx, newValue) => {
-      onUpdateRow(idx, newValue)
-      setEditingRow(null)
-    }}
-    {/* ← period prop MISSING — defaults to 'Current Period' */}
-  />
-)}
-```
-
-**Impact:** Every edit button in all 9 support tabs (HR, Communication, Legal, Audit, Travel, IT, Product & Service, Procurement, General Services) shows `"Current Period"` as the reporting period in the modal, regardless of whether the KPI is Weekly, Monthly, or Quarterly.
-
-**Affected KPITable call sites:** 20 instances across 9 files (see table in Section 1).
+**Fix applied:** `_shared.jsx` — `KPITable` now accepts `period` prop and forwards it to `KPIUpdateModal`. All 20 call sites across 9 support tab files updated with correct period strings (`"Week 41 / 2026"`, `"October 2026"`, `"Q4 2026"`).
 
 ---
 
-### Bug #2 — MINOR: Finance, Operations, Safety daily cards use a specific calendar date as `period`
+### Bug #2 — ~~MINOR~~ **FIXED** (Oct 04, 2026): Finance, Operations, Safety daily cards use a specific calendar date as `period`
 
-**Locations:**
-- `FinanceTab.jsx:188` — `period="Oct 4, 2026"`
-- `OperationsTab.jsx:127` — `period="Oct 4, 2026"`
-- `SafetyTab.jsx:92` — `period="Oct 4, 2026"`
+**Fix applied:** All three daily cards now pass `period="Daily"` — consistent with the cadence label pattern used across the rest of the app.
 
-**Issue:** These three Daily cards pass a hardcoded specific date (`"Oct 4, 2026"`) as the period label. This is inconsistent with the rest of the strategic tabs, which use descriptive cadence labels:
-- CommercialTab weeklies: `"Week 41 / 2026"`
-- CommercialTab monthly: `"October 2026"`
-- CommercialTab quarterly: `"Q3 2026"`
-- FleetTab weeklies: `"Week 41 / 2026"`
-
-A hardcoded calendar date will become stale as the prototype is demoed on different days, and it communicates "this specific day's entry" rather than "this reporting period."
+- `FinanceTab.jsx` — `CashPositionCard`: `"Oct 4, 2026"` → `"Daily"`
+- `OperationsTab.jsx` — `OTPTodayCard`: `"Oct 4, 2026"` → `"Daily"`
+- `SafetyTab.jsx` — `IncidentsTodayCard`: `"Oct 4, 2026"` → `"Daily"`
 
 ---
 
@@ -187,9 +162,9 @@ Alternatively, keep the specific date format but make it consistent: `"Daily —
 
 ## Summary
 
-| Bug | Severity | Files affected | Root cause |
-|-----|----------|---------------|------------|
-| `_shared.jsx` KPITable missing `period` prop | High | 9 support tab files (20 KPITable instances) | `period` never passed through `KPITable` to modal |
-| Daily strategic cards use specific date not cadence label | Low | 3 strategic tab files | Inconsistent convention at time of authoring |
+| Bug | Severity | Files affected | Status |
+|-----|----------|---------------|--------|
+| `_shared.jsx` KPITable missing `period` prop | High | `_shared.jsx` + 9 support tab files (20 call sites) | ✅ Fixed Oct 04, 2026 |
+| Daily strategic cards use specific date not cadence label | Low | `FinanceTab.jsx`, `OperationsTab.jsx`, `SafetyTab.jsx` | ✅ Fixed Oct 04, 2026 |
 
 **No bugs in KPIUpdateModal itself** — the component correctly renders whatever it receives. All `row` objects (indicator, value, source) are passed correctly by all callers.

@@ -59,11 +59,11 @@ export default function HRTab() {
       <ExecutionProCard projects={EP} />
       <div>
         <SectionHeader label="Weekly" action={<button style={BTN} onClick={() => setWeeklyModal(true)}>+ Enter Weekly Data</button>} />
-        <KPITable rows={weekly} onUpdateRow={updateWeeklyRow} />
+        <KPITable rows={weekly} onUpdateRow={updateWeeklyRow} period="Week 41 / 2026" />
       </div>
       <div>
         <SectionHeader label="Monthly" action={<button style={BTN} onClick={() => setMonthlyModal(true)}>+ Enter Monthly Data</button>} />
-        <KPITable rows={monthly} onUpdateRow={updateMonthlyRow} />
+        <KPITable rows={monthly} onUpdateRow={updateMonthlyRow} period="October 2026" />
       </div>
       {weeklyModal && <DepartmentDataEntryModal rows={weekly} onSubmit={submitWeekly} onClose={() => setWeeklyModal(false)} cadence="Weekly" dept="HR" />}
       {monthlyModal && <DepartmentDataEntryModal rows={monthly} onSubmit={submitMonthly} onClose={() => setMonthlyModal(false)} cadence="Monthly" dept="HR" />}

@@ -185,7 +185,7 @@ function CashPositionCard() {
         Alert threshold: net movement negative 3 consecutive days
       </div>
       <SourceLine text="Finance Dept. / Daily bank reconciliation" />
-      {modal && <KPIUpdateModal row={row} rowIndex={0} onClose={() => setModal(false)} onSubmit={(_, v) => setValue(v)} period="Oct 4, 2026" />}
+      {modal && <KPIUpdateModal row={row} rowIndex={0} onClose={() => setModal(false)} onSubmit={(_, v) => setValue(v)} period="Daily" />}
     </CardWrap>
   )
 }
