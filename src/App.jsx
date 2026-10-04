@@ -59,11 +59,20 @@ export const NAV = [
 
 export default function App() {
   const [activeTab, setActiveTab] = useState('overview')
+  const [collapsed, setCollapsed] = useState(() => localStorage.getItem('ecair-sidebar') === 'collapsed')
+
+  function toggleSidebar() {
+    setCollapsed(prev => {
+      const next = !prev
+      localStorage.setItem('ecair-sidebar', next ? 'collapsed' : 'expanded')
+      return next
+    })
+  }
 
   // ── Layout constants ────────────────────────────────────────────────────────
   const HEADER_H = 48   // px
   const ALERT_H  = 56   // px
-  const SIDEBAR_W = 220 // px
+  const SIDEBAR_W = collapsed ? 64 : 220
 
   return (
     <div
@@ -73,21 +82,27 @@ export default function App() {
       {/* ── Fixed Left Sidebar ─────────────────────────────────────────────── */}
       <div
         className="fixed top-0 left-0 bottom-0 flex flex-col z-30"
-        style={{ width: SIDEBAR_W, backgroundColor: 'var(--bg-secondary)', borderRight: '1px solid var(--border-subtle)' }}
+        style={{
+          width: SIDEBAR_W,
+          transition: 'width 0.2s ease',
+          backgroundColor: 'var(--bg-secondary)',
+          borderRight: '1px solid var(--border-subtle)',
+        }}
       >
-        <Sidebar activeTab={activeTab} onNavigate={setActiveTab} />
+        <Sidebar activeTab={activeTab} onNavigate={setActiveTab} collapsed={collapsed} onToggleCollapsed={toggleSidebar} />
       </div>
 
       {/* ── Right column (header + alert + content) ────────────────────────── */}
       <div
         className="flex flex-col flex-1"
-        style={{ marginLeft: SIDEBAR_W }}
+        style={{ marginLeft: SIDEBAR_W, transition: 'margin-left 0.2s ease' }}
       >
         {/* Fixed Header */}
         <div
           className="fixed top-0 right-0 z-20 flex items-center"
           style={{
             left: SIDEBAR_W,
+            transition: 'left 0.2s ease',
             height: HEADER_H,
             backgroundColor: 'var(--bg-secondary)',
             borderBottom: '1px solid var(--border-subtle)',
@@ -101,6 +116,7 @@ export default function App() {
           className="fixed right-0 z-20"
           style={{
             left: SIDEBAR_W,
+            transition: 'left 0.2s ease',
             top: HEADER_H,
             height: ALERT_H,
             backgroundColor: 'var(--bg-secondary)',
